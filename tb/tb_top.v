@@ -267,7 +267,7 @@ module tb_top();
 
     reg [7:0] itcm_mem [0:(`E203_ITCM_RAM_DP*8)-1];
     initial begin
-      $readmemh({testcase, ".verilog"}, itcm_mem);
+      $readmemh({testcase, "D:\\Desktop\\test\\test.verilog"}, itcm_mem);
 
       for (i=0;i<(`E203_ITCM_RAM_DP);i=i+1) begin
           `ITCM.mem_r[i][00+7:00] = itcm_mem[i*8+0];

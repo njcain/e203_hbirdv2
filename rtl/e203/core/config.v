@@ -16,7 +16,7 @@
                                                                          
                                                                          
                                                                          
-
+`define FPGA_SOURCE
 `define E203_CFG_DEBUG_HAS_JTAG
 `define E203_CFG_IRQ_NEED_SYNC
 

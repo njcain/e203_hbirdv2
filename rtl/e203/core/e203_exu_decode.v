@@ -101,6 +101,7 @@ module e203_exu_decode(
   wire [4:0]  rv32_rs1    = rv32_instr[19:15];
   wire [4:0]  rv32_rs2    = rv32_instr[24:20];
   wire [6:0]  rv32_func7  = rv32_instr[31:25];
+  wire [4:0]  rv32_rs3    = rv32_instr[31:27];
 
   wire [4:0]  rv16_rd     = rv32_rd;
   wire [4:0]  rv16_rs1    = rv16_rd; 
@@ -325,6 +326,29 @@ module e203_exu_decode(
   assign nice_info_bus[`E203_DECINFO_RV32   ]    = rv32;
   assign nice_info_bus[`E203_DECINFO_NICE_INSTR]  = nice_instr;
   `endif//}
+
+  //============================================================================
+  wire rv32_fadds = rv32_op_fp & rv32_func7_0000000;
+  wire rv32_fsubs = rv32_op_fp & rv32_func7_0000100;
+  wire rv32_fmuls = rv32_op_fp & rv32_func7_0001000;
+  wire rv32_fdivs = rv32_op_fp & rv32_func7_0001100;
+  wire rv32_fsqrts = rv32_op_fp & (rv32_instr[31:20] == 12'b0001_1000_0000);
+  wire rv32_fsgnjs = rv32_op_fp & rv32_func7_0010000 & rv32_func3_000;
+  wire rv32_fsgnjns = rv32_op_fp & rv32_func7_0010000 & rv32_func3_001;
+  wire rv32_fsgnjxs = rv32_op_fp & rv32_func7_0010000 & rv32_func3_010;
+  wire rv32_fmins = rv32_op_fp & rv32_func7_0010100 & rv32_func3_000;
+  wire rv32_fmaxs = rv32_op_fp & rv32_func7_0010100 & rv32_func3_001;
+  wire rv32_fcvtws = rv32_op_fp & (rv32_instr[31:20] == 12'b1100_0000_0000);
+  wire rv32_fcvtwus = rv32_op_fp & (rv32_instr[31:20] == 12'b1100_0000_0001);
+  wire rv32_fmvxw = rv32_op_fp & (rv32_instr[31:20] == 12'b1110_0000_0000);
+  wire rv32_feqs = rv32_op_fp & rv32_func7_1010000 & rv32_func3_010;
+  wire rv32_flts = rv32_op_fp & rv32_func7_1010000 & rv32_func3_001;
+  wire rv32_fles = rv32_op_fp & rv32_func7_1010000 & rv32_func3_000;
+  wire rv32_fclasss = rv32_op_fp & (rv32_instr[31:20] == 12'b1110_0000_0000) & rv32_func3_001;
+  wire rv32_fcvtsw = rv32_op_fp & (rv32_instr[31:20] == 12'b1101_0000_0000);
+  wire rv32_fcvtswu = rv32_op_fp & (rv32_instr[31:20] == 12'b1101_0000_0001);
+  wire rv32_fmvwx = rv32_op_fp & (rv32_instr[31:20] == 12'b1111_0000_0000) & rv32_func3_000;
+
 
   // ===========================================================================
   // Branch Instructions

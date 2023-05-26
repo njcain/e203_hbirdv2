@@ -185,6 +185,8 @@ module e203_exu_alu(
   wire bjp_op = (~ifu_excp_op) & (i_info[`E203_DECINFO_GRP] == `E203_DECINFO_GRP_BJP); 
   wire csr_op = (~ifu_excp_op) & (i_info[`E203_DECINFO_GRP] == `E203_DECINFO_GRP_CSR); 
   wire fmac_op = (~ifu_excp_op) & (i_info[`E203_DECINFO_GRP] == `E203_DECINFO_GRP_FPU) & (i_info[`E203_DECINFO_FPU_GRP] == `E203_DECINFO_GRP_FPU_FMAC);
+  wire fmis_op = (~ifu_excp_op) & (i_info[`E203_DECINFO_GRP] == `E203_DECINFO_GRP_FPU) & (i_info[`E203_DECINFO_FPU_GRP] == `E203_DECINFO_GRP_FPU_FMIS);
+
 `ifdef E203_SUPPORT_SHARE_MULDIV //{
   wire mdv_op = (~ifu_excp_op) & (i_info[`E203_DECINFO_GRP] == `E203_DECINFO_GRP_MULDIV); 
 `endif//E203_SUPPORT_SHARE_MULDIV}
@@ -207,6 +209,7 @@ module e203_exu_alu(
   wire csr_i_valid = i_valid & csr_op;
   //激活fmac
   wire fmac_i_valid = i_valid & fmac_op;
+  wire fmis_i_valid = i_valid & fmis_op;
   wire ifu_excp_i_valid = i_valid & ifu_excp_op;
 `ifdef E203_HAS_NICE//{
   wire nice_i_valid = i_valid & nice_op;
@@ -220,6 +223,7 @@ module e203_exu_alu(
   wire bjp_i_ready;
   wire csr_i_ready;
   wire fmac_i_ready;
+  wire fmis_i_ready;
   wire ifu_excp_i_ready;
 
   assign i_ready =   (agu_i_ready & agu_op)
@@ -231,6 +235,7 @@ module e203_exu_alu(
                    | (bjp_i_ready & bjp_op)
                    | (csr_i_ready & csr_op)
                    | (fmac_i_ready & fmac_op)
+                   | (fmis_i_ready & fmis_op)
                    `ifdef E203_HAS_NICE//{
                    | (nice_i_ready & nice_op)
 		   `endif//}
@@ -638,6 +643,38 @@ module e203_exu_alu(
       .clk                 (clk               ),
       .rst_n               (rst_n             ) 
   );
+
+  // Instantiate the FMIS module
+  wire [`E203_XLEN-1:0]           fmis_i_rs1  = {`E203_XLEN         {fmis_op}} & i_rs1;
+  wire [`E203_XLEN-1:0]           fmis_i_rs2  = {`E203_XLEN         {fmis_op}} & i_rs2;
+  wire [`E203_XLEN-1:0]           fmis_i_imm  = {`E203_XLEN         {fmis_op}} & i_imm;
+  wire [`E203_DECINFO_WIDTH-1:0]  fmis_i_info = {`E203_DECINFO_WIDTH{fmis_op}} & i_info;  
+  wire  [`E203_ITAG_WIDTH-1:0]    fmis_i_itag = {`E203_ITAG_WIDTH   {fmis_op}} & i_itag;  
+  wire fmis_o_valid; 
+  wire fmis_o_ready;
+  wire [`E203_XLEN-1:0] fmis_o_wbck_wdat;
+  wire fmis_o_wbck_err;
+  e203_exu_fpu_fmis u_e203_exu_fpu_fmis(
+      .fmis_i_valid      (fmis_i_valid    ),
+      .fmis_i_ready      (fmis_i_ready    ),
+                  
+      .fmis_i_rs1        (fmis_i_rs1      ),
+      .fmis_i_rs2        (fmis_i_rs2      ),
+      .fmis_i_imm        (fmis_i_imm      ),
+      .fmis_i_info       (fmis_i_info[`E203_DECINFO_FMIS_WIDTH-1:0]),
+      .fmis_i_itag       (fmis_i_itag     ),
+      .overflow (),              
+
+      .flush_pulse         (flush_pulse    ),
+
+      .fmis_o_valid      (fmis_o_valid    ),
+      .fmis_o_ready      (fmis_o_ready    ),
+      .fmis_o_wbck_wdat  (fmis_o_wbck_wdat),
+      .fmis_o_wbck_err   (fmis_o_wbck_err ),
+
+      .clk                 (clk               ),
+      .rst_n               (rst_n             ) 
+  );
 `ifdef E203_SUPPORT_SHARE_MULDIV //{
   //////////////////////////////////////////////////////
   // Instantiate the MULDIV module
@@ -816,6 +853,7 @@ module e203_exu_alu(
   wire o_sel_csr = csr_op;
   wire o_sel_agu = agu_op;
   wire o_sel_fmac = fmac_op;
+  wire o_sel_fmis = fmis_op;
 `ifdef E203_SUPPORT_SHARE_MULDIV //{
   wire o_sel_mdv = mdv_op;
 `endif//E203_SUPPORT_SHARE_MULDIV}
@@ -828,6 +866,7 @@ module e203_exu_alu(
                      | (o_sel_csr      & csr_o_valid     )
                      | (o_sel_agu      & agu_o_valid     )
                      | (o_sel_fmac      & fmac_o_valid     )
+                     | (o_sel_fmis      & fmis_o_valid     )
                      | (o_sel_ifu_excp & ifu_excp_o_valid)
                       `ifdef E203_SUPPORT_SHARE_MULDIV //{
                      | (o_sel_mdv      & mdv_o_valid     )
@@ -846,6 +885,7 @@ module e203_exu_alu(
   assign bjp_o_ready      = o_sel_bjp & o_ready;
   assign csr_o_ready      = o_sel_csr & o_ready;
   assign fmac_o_ready     = o_sel_fmac & o_ready;
+  assign fmis_o_ready     = o_sel_fmis & o_ready;
 `ifdef E203_HAS_NICE//{
   assign nice_o_ready      = o_sel_nice & o_ready;
 `endif//}
@@ -856,6 +896,7 @@ module e203_exu_alu(
                   | ({`E203_XLEN{o_sel_csr}} & csr_o_wbck_wdat)
                   | ({`E203_XLEN{o_sel_agu}} & agu_o_wbck_wdat)
                   | ({`E203_XLEN{o_sel_fmac}} & fmac_o_wbck_wdat)
+                  | ({`E203_XLEN{o_sel_fmis}} & fmis_o_wbck_wdat)
                       `ifdef E203_SUPPORT_SHARE_MULDIV //{
                   | ({`E203_XLEN{o_sel_mdv}} & mdv_o_wbck_wdat)
                       `endif//E203_SUPPORT_SHARE_MULDIV}
@@ -873,6 +914,7 @@ module e203_exu_alu(
                   | ({1{o_sel_csr}} & csr_o_wbck_err)
                   | ({1{o_sel_agu}} & agu_o_wbck_err)
                   | ({1{o_sel_fmac}} & fmac_o_wbck_err)
+                  | ({1{o_sel_fmis}} & fmis_o_wbck_err)
                       `ifdef E203_SUPPORT_SHARE_MULDIV //{
                   | ({1{o_sel_mdv}} & mdv_o_wbck_err)
                       `endif//E203_SUPPORT_SHARE_MULDIV}

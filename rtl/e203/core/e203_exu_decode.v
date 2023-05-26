@@ -377,6 +377,7 @@ module e203_exu_decode(
                       | rv32_fmaxs  
                       | rv32_fcvtws 
                       | rv32_fcvtwus
+                      | rv32_fmvxw
                       | rv32_feqs   
                       | rv32_flts   
                       | rv32_fles   
@@ -404,12 +405,12 @@ module e203_exu_decode(
                     | rv32_fsgnjns
                     | rv32_fsgnjxs
                     | rv32_fmins  
-                    | rv32_fmaxs  
-                    | rv32_fmvxw
+                    | rv32_fmaxs
                     | rv32_fcvtsw 
                     | rv32_fcvtswu
                     | rv32_fmvwx  ;
   wire fmac_op = rv32_fadds | rv32_fsubs | rv32_fmuls |rv32_fdivs;
+  wire fmis_op = rv32_fsgnjs | rv32_fsgnjns | rv32_fsgnjxs |rv32_fmvwx|rv32_fmvxw;
 
   wire [`E203_DECINFO_FMAC_WIDTH-1:0] fmac_info_bus;
   assign fmac_info_bus[`E203_DECINFO_GRP]=`E203_DECINFO_GRP_FPU;
@@ -431,6 +432,29 @@ module e203_exu_decode(
   assign fmac_info_bus[`E203_DECINFO_FMAC_FLE]=rv32_fles;
   assign fmac_info_bus[`E203_DECINFO_FMAC_FDIV]=rv32_fdivs;
 
+
+  wire [`E203_DECINFO_FMIS_WIDTH-1:0] fmis_info_bus;
+  assign fmis_info_bus[`E203_DECINFO_GRP]=`E203_DECINFO_GRP_FPU;
+  assign fmis_info_bus[`E203_DECINFO_RV32]=rv32;
+  assign fmis_info_bus[`E203_DECINFO_FPU_GRP]=`E203_DECINFO_GRP_FPU_FMIS;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FSGNJ]=rv32_fsgnjs;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FSGNJN]=rv32_fsgnjns;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FSGNJX]=rv32_fsgnjxs;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FMVXW]=rv32_fmvxw;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FCLASS]=rv32_fclasss;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FMVWX]=rv32_fmvwx;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTWS]=rv32_fcvtws;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTWUS]=rv32_fcvtwus;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTSW]=rv32_fcvtsw;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTSWU]=rv32_fcvtswu;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTSD]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTDS]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTWD]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTWUD]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTDW]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_CVTDWU]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_DOUBLE]=0;
+  
   // ===========================================================================
   // Branch Instructions
   wire rv32_beq      = rv32_branch & rv32_func3_000;
@@ -1111,6 +1135,7 @@ module e203_exu_decode(
             | ({`E203_DECINFO_WIDTH{csr_op}}     & {{`E203_DECINFO_WIDTH-`E203_DECINFO_CSR_WIDTH{1'b0}},csr_info_bus})
             | ({`E203_DECINFO_WIDTH{muldiv_op}}  & {{`E203_DECINFO_WIDTH-`E203_DECINFO_MULDIV_WIDTH{1'b0}},muldiv_info_bus})
             | ({`E203_DECINFO_WIDTH{fmac_op}}  & {{`E203_DECINFO_WIDTH-`E203_DECINFO_FMAC_WIDTH{1'b0}},fmac_info_bus})
+            | ({`E203_DECINFO_WIDTH{fmis_op}}  & {{`E203_DECINFO_WIDTH-`E203_DECINFO_FMIS_WIDTH{1'b0}},fmis_info_bus})
            `ifdef E203_HAS_NICE//{
             | ({`E203_DECINFO_WIDTH{nice_op}}     & {{`E203_DECINFO_WIDTH-`E203_DECINFO_NICE_WIDTH{1'b0}},nice_info_bus})
            `endif//}
@@ -1124,6 +1149,7 @@ module e203_exu_decode(
             | csr_op
             | muldiv_op
             | fmac_op
+            | fmis_op
            `ifdef E203_HAS_NICE//{
             | nice_op
            `endif//}

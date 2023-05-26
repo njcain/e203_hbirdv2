@@ -397,7 +397,7 @@ wire wbck_o_valid=`EXU.u_e203_exu_alu.wbck_o_valid;
 
     reg [7:0] itcm_mem [0:(`E203_ITCM_RAM_DP*8)-1];
     initial begin
-      $readmemh({"D:\\Desktop\\test\\Hello_world.verilog"}, itcm_mem);
+      $readmemh({"D:\\Desktop\\test\\rv32uf-p-fdiv.verilog"}, itcm_mem);
        //$readmemh({testcase, "D:\\Desktop\\test\\rv32uf-p-fadd.verilog"}, itcm_mem);
 
       for (i=0;i<(`E203_ITCM_RAM_DP);i=i+1) begin

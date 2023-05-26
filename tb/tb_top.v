@@ -11,6 +11,7 @@ module tb_top();
 
   `define CPU_TOP u_e203_soc_top.u_e203_subsys_top.u_e203_subsys_main.u_e203_cpu_top
   `define EXU `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_exu
+  `define IFU `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu
   `define ITCM `CPU_TOP.u_e203_srams.u_e203_itcm_ram.u_e203_itcm_gnrl_ram.u_sirv_sim_ram
 
   `define PC_WRITE_TOHOST       `E203_PC_SIZE'h80000086
@@ -19,7 +20,95 @@ module tb_top();
   `define PC_TMR_IRQ_BEFOR_MRET `E203_PC_SIZE'h800000d6
   `define PC_AFTER_SETMTVEC     `E203_PC_SIZE'h8000015C
 
+  
+//  wire [`E203_XLEN-1:0] x1 = `EXU.u_e203_exu_regfile.rf_r[1];
+//  wire [`E203_XLEN-1:0] x2 = `EXU.u_e203_exu_regfile.rf_r[2];
+ // wire [`E203_XLEN-1:0] x3 = `EXU.u_e203_exu_regfile.rf_r[3];
+//  wire [`E203_XLEN-1:0] x4 = `EXU.u_e203_exu_regfile.rf_r[4];
+//  wire [`E203_XLEN-1:0] x5 = `EXU.u_e203_exu_regfile.rf_r[5];
+//  wire [`E203_XLEN-1:0] x6 = `EXU.u_e203_exu_regfile.rf_r[6];
+//  wire [`E203_XLEN-1:0] x7 = `EXU.u_e203_exu_regfile.rf_r[7];
+//  wire [`E203_XLEN-1:0] x8 = `EXU.u_e203_exu_regfile.rf_r[8];
+//  wire [`E203_XLEN-1:0] x9 = `EXU.u_e203_exu_regfile.rf_r[9];
+//  wire [`E203_XLEN-1:0] x0 = `EXU.u_e203_exu_regfile.rf_r[0];
+//  wire [`E203_XLEN-1:0] x10 = `EXU.u_e203_exu_regfile.rf_r[10];
   wire [`E203_XLEN-1:0] x3 = `EXU.u_e203_exu_regfile.rf_r[3];
+  wire [`E203_XLEN-1:0] f1 = `EXU.u_e203_exu_fpu_regfile.rf_r[1];
+  wire [`E203_XLEN-1:0] f2 = `EXU.u_e203_exu_fpu_regfile.rf_r[2];
+  wire [`E203_XLEN-1:0] f3 = `EXU.u_e203_exu_fpu_regfile.rf_r[3];
+  wire [`E203_XLEN-1:0] f4 = `EXU.u_e203_exu_fpu_regfile.rf_r[4];
+  wire [`E203_XLEN-1:0] f5 = `EXU.u_e203_exu_fpu_regfile.rf_r[5];
+  wire [`E203_XLEN-1:0] f6 = `EXU.u_e203_exu_fpu_regfile.rf_r[6];
+  wire [`E203_XLEN-1:0] f7 = `EXU.u_e203_exu_fpu_regfile.rf_r[7];
+  wire [`E203_XLEN-1:0] f8 = `EXU.u_e203_exu_fpu_regfile.rf_r[8];
+  wire [`E203_XLEN-1:0] f9 = `EXU.u_e203_exu_fpu_regfile.rf_r[9];
+  wire [`E203_XLEN-1:0] f0 = `EXU.u_e203_exu_fpu_regfile.rf_r[0];
+  wire [`E203_XLEN-1:0] f10 = `EXU.u_e203_exu_fpu_regfile.rf_r[10];
+  wire [`E203_XLEN-1:0] f11 = `EXU.u_e203_exu_fpu_regfile.rf_r[11];
+  wire [`E203_XLEN-1:0] f12 = `EXU.u_e203_exu_fpu_regfile.rf_r[12];
+  wire [`E203_XLEN-1:0] f13 = `EXU.u_e203_exu_fpu_regfile.rf_r[13];
+//    wire [`E203_XLEN-1:0] x1_wen = `EXU.u_e203_exu_regfile.rf_wen[1];
+//  wire [`E203_XLEN-1:0] x2_wen = `EXU.u_e203_exu_regfile.rf_wen[2];
+//  wire [`E203_XLEN-1:0] x3_wen = `EXU.u_e203_exu_regfile.rf_wen[3];
+//  wire [`E203_XLEN-1:0] x4_wen = `EXU.u_e203_exu_regfile.rf_wen[4];
+//  wire [`E203_XLEN-1:0] x5_wen = `EXU.u_e203_exu_regfile.rf_wen[5];
+//  wire [`E203_XLEN-1:0] x6_wen = `EXU.u_e203_exu_regfile.rf_wen[6];
+//  wire [`E203_XLEN-1:0] x7_wen = `EXU.u_e203_exu_regfile.rf_wen[7];
+//  wire [`E203_XLEN-1:0] x8_wen = `EXU.u_e203_exu_regfile.rf_wen[8];
+//  wire [`E203_XLEN-1:0] x9_wen = `EXU.u_e203_exu_regfile.rf_wen[9];
+//  wire [`E203_XLEN-1:0] x0_wen = `EXU.u_e203_exu_regfile.rf_wen[0];
+//  wire [`E203_XLEN-1:0] x10_wen = `EXU.u_e203_exu_regfile.rf_wen[10];
+
+  wire [`E203_XLEN-1:0] f1_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[1];
+  wire [`E203_XLEN-1:0] f2_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[2];
+  wire [`E203_XLEN-1:0] f3_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[3];
+  wire [`E203_XLEN-1:0] f4_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[4];
+  wire [`E203_XLEN-1:0] f5_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[5];
+  wire [`E203_XLEN-1:0] f6_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[6];
+  wire [`E203_XLEN-1:0] f7_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[7];
+  wire [`E203_XLEN-1:0] f8_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[8];
+  wire [`E203_XLEN-1:0] f9_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[9];
+  wire [`E203_XLEN-1:0] f0_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[0];
+  wire [`E203_XLEN-1:0] f10_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[10];
+  wire [`E203_XLEN-1:0] f11_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[11];
+  wire [`E203_XLEN-1:0] f12_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[12];
+  wire [`E203_XLEN-1:0] f13_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[13];
+
+//wire rv32_load_fp = `EXU.u_e203_exu_decode.rv32_load_fp;
+//wire rv32_fr4 =      `EXU.u_e203_exu_decode.rv32_fr4;
+wire rv32_fadds =   `EXU.u_e203_exu_decode.rv32_fadds;
+wire rv32_fdivs =   `EXU.u_e203_exu_decode.rv32_fdivs;
+//wire rv32_fsubs =    `EXU.u_e203_exu_decode.rv32_fsubs  ;
+//wire rv32_fmuls =   `EXU.u_e203_exu_decode.rv32_fmuls  ;
+//wire rv32_fdivs =  `EXU.u_e203_exu_decode.rv32_fdivs  ;
+//wire rv32_fsqrts =  `EXU.u_e203_exu_decode.rv32_fsqrts ;
+//wire rv32_fsgnjs  = `EXU.u_e203_exu_decode.rv32_fsgnjs ;
+//wire rv32_fsgnjns = `EXU.u_e203_exu_decode.rv32_fsgnjns;
+//wire rv32_fsgnjxs = `EXU.u_e203_exu_decode.rv32_fsgnjxs;
+//wire rv32_fmins   = `EXU.u_e203_exu_decode.rv32_fmins  ;
+//wire rv32_fmaxs   = `EXU.u_e203_exu_decode.rv32_fmaxs  ;
+//wire rv32_fmvxw = `EXU.u_e203_exu_decode.rv32_fmvxw;
+//wire rv32_fcvtsw  = `EXU.u_e203_exu_decode.rv32_fcvtsw ;
+//wire rv32_fcvtswu = `EXU.u_e203_exu_decode.rv32_fcvtswu;
+//wire rv32_fmvwx   = `EXU.u_e203_exu_decode.rv32_fmvwx  ;
+
+wire rv_all0s1s_ilgl =`EXU.u_e203_exu_decode.rv_all0s1s_ilgl;
+wire rv_index_ilgl=`EXU.u_e203_exu_decode.rv_index_ilgl;
+wire rv16_addi16sp_ilgl=`EXU.u_e203_exu_decode.rv16_addi16sp_ilgl;
+wire rv16_addi4spn_ilgl=`EXU.u_e203_exu_decode.rv16_addi4spn_ilgl;
+wire rv16_li_lui_ilgl=`EXU.u_e203_exu_decode.rv16_li_lui_ilgl;
+wire rv16_sxxi_shamt_ilgl=`EXU.u_e203_exu_decode.rv16_sxxi_shamt_ilgl;
+wire rv32_sxxi_shamt_ilgl=`EXU.u_e203_exu_decode.rv32_sxxi_shamt_ilgl;
+wire rv32_dret_ilgl=`EXU.u_e203_exu_decode.rv32_dret_ilgl;
+wire rv16_lwsp_ilgl=`EXU.u_e203_exu_decode.rv16_lwsp_ilgl;
+wire legl_ops=`EXU.u_e203_exu_decode.legl_ops;
+
+  wire [4:0] rf_wbck_rdidx = `EXU.u_e203_exu_wbck.rf_wbck_o_rdidx;
+  wire [31:0] rf_wbck_wdat = `EXU.u_e203_exu_wbck.rf_wbck_o_wdat;
+  wire [31:0] wbck_sel_alu = `EXU.u_e203_exu_wbck.wbck_sel_alu;
+  wire [31:0] longp_wbck_i_valid = `EXU.u_e203_exu_wbck.longp_wbck_i_valid;
+  wire [4:0] dec_fpu_rdfpu = `EXU.u_e203_exu_decode.dec_fpu_rdfpu;
+  
   wire [`E203_PC_SIZE-1:0] pc = `EXU.u_e203_exu_commit.alu_cmt_i_pc;
   wire [`E203_PC_SIZE-1:0] pc_vld = `EXU.u_e203_exu_commit.alu_cmt_i_valid;
 
@@ -56,8 +145,47 @@ module tb_top();
   end
 
   wire i_valid = `EXU.i_valid;
+  wire ifu_o_buserr = `IFU.u_e203_ifu_ifetch.ifu_o_buserr;
+   wire ifu_o_misalgn = `IFU.u_e203_ifu_ifetch.ifu_o_misalgn;
+    wire ir_valid_set = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.ir_valid_set;
+    wire ifu_rsp_hsked = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.ifu_rsp_hsked;
+    wire pipe_flush_req_real = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.pipe_flush_req_real;
+    wire ifu_rsp_need_replay = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.ifu_rsp_need_replay;
+    wire ifu_rsp_valid = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.ifu_rsp_valid;
+    wire ifu_rsp_ready = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.ifu_rsp_ready;
+     wire bpu_wait = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_litebpu.bpu_wait;
+      wire dec_i_valid = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_litebpu.dec_i_valid;
+       wire dec_jalr = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_litebpu.dec_jalr;
+        wire dec_jalr_rs1x1 = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_litebpu.dec_jalr_rs1x1;
+         wire jalr_rs1idx_cam_irrdidx = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_litebpu.jalr_rs1idx_cam_irrdidx;
+          wire dec_jalr_rs1idx = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_minidec.dec_jalr_rs1idx;
+          wire [31:0] instr = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_minidec.instr;
+          wire [31:0] fmac_i_rs1=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_i_rs1;
+          wire [31:0] fmac_i_rs2=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_i_rs2;
+          wire [31:0] fmac_o_wbck_wdat=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_o_wbck_wdat;
+            wire [31:0] wbck_o_wdat=`EXU.u_e203_exu_alu.wbck_o_wdat;
+          wire i_fadd = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fadd;
+           wire i_fdiv = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fdiv;
+          wire fmac_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_o_valid;
+          wire fmac_as_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_as_o_valid;
+          wire fmac_div_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_div_o_valid;
+          wire s_output_z = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.u_e203_exu_fpu_fmac_div.s_output_z;
+wire i_fsub = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fsub;
+wire i_fmul = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fmul;
+wire o_valid = `EXU.u_e203_exu_alu.o_valid;
+wire wbck_o_valid=`EXU.u_e203_exu_alu.wbck_o_valid;
+          wire [3:0] state=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.u_e203_exu_fpu_fmac_div.state;
+          wire [2:0] fmac_op=`EXU.u_e203_exu_alu.fmac_op;
+         wire [2:0] E203_DECINFO_GRP=`EXU.u_e203_exu_alu.i_info[`E203_DECINFO_GRP];
+   wire [2:0] E203_DECINFO_FPU_GRP=`EXU.u_e203_exu_alu.i_info[`E203_DECINFO_FPU_GRP];
+   wire ifu_excp_op=`EXU.u_e203_exu_alu.ifu_excp_op;
+   wire i_ilegl=`EXU.u_e203_exu_alu.i_ilegl;
+   wire i_buserr=`EXU.u_e203_exu_alu.i_buserr;
+    wire i_misalgn=`EXU.u_e203_exu_alu.i_misalgn;
+  
   wire i_ready = `EXU.i_ready;
-
+  wire [31:0] zhiling = `EXU.i_ir;
+  wire [31:0] rd_f = `EXU.u_e203_exu_fpu_regfile.rf_r[zhiling[11:7]];
   always @(posedge hfclk or negedge rst_n)
   begin 
     if(rst_n == 1'b0) begin
@@ -229,7 +357,7 @@ module tb_top();
 
   always
   begin 
-     #2 clk <= ~clk;
+     #8 clk <= ~clk;
   end
 
   always
@@ -267,7 +395,8 @@ module tb_top();
 
     reg [7:0] itcm_mem [0:(`E203_ITCM_RAM_DP*8)-1];
     initial begin
-      $readmemh({testcase, "D:\\Desktop\\test\\test.verilog"}, itcm_mem);
+      $readmemh({"D:\\Desktop\\test\\Hello_world.verilog"}, itcm_mem);
+       //$readmemh({testcase, "D:\\Desktop\\test\\rv32uf-p-fadd.verilog"}, itcm_mem);
 
       for (i=0;i<(`E203_ITCM_RAM_DP);i=i+1) begin
           `ITCM.mem_r[i][00+7:00] = itcm_mem[i*8+0];

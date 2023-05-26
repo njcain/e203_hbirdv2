@@ -45,9 +45,17 @@ module e203_exu_decode(
   output dec_rs2x0,
   output dec_rs1en,
   output dec_rs2en,
+  output dec_rs3en,
   output dec_rdwen,
+
+  output dec_fpu,
+  output dec_fpu_rs1fpu,
+  output dec_fpu_rs2fpu,
+  output dec_fpu_rdfpu,
+
   output [`E203_RFIDX_WIDTH-1:0] dec_rs1idx,
   output [`E203_RFIDX_WIDTH-1:0] dec_rs2idx,
+  output [`E203_RFIDX_WIDTH-1:0] dec_rs3idx,
   output [`E203_RFIDX_WIDTH-1:0] dec_rdidx,
   output [`E203_DECINFO_WIDTH-1:0] dec_info,  
   output [`E203_XLEN-1:0] dec_imm,
@@ -173,20 +181,20 @@ module e203_exu_decode(
   wire rv32_func7_1100001 = (rv32_func7 == 7'b1100001);  
   wire rv32_func7_1101001 = (rv32_func7 == 7'b1101001);  
 
-  wire rv32_rs1_x0 = (rv32_rs1 == 5'b00000);
-  wire rv32_rs2_x0 = (rv32_rs2 == 5'b00000);
-  wire rv32_rs2_x1 = (rv32_rs2 == 5'b00001);
-  wire rv32_rd_x0  = (rv32_rd  == 5'b00000);
-  wire rv32_rd_x2  = (rv32_rd  == 5'b00010);
+  wire rv32_rs1_x0 = (rv32_rs1 == 5'b00000) & (~dec_fpu_rs1fpu);
+  wire rv32_rs2_x0 = (rv32_rs2 == 5'b00000) & (~dec_fpu_rs2fpu);
+  wire rv32_rs2_x1 = (rv32_rs2 == 5'b00001) & (~dec_fpu_rs2fpu);
+  wire rv32_rd_x0  = (rv32_rd  == 5'b00000) & (~dec_fpu_rdfpu);
+  wire rv32_rd_x2  = (rv32_rd  == 5'b00010) & (~dec_fpu_rdfpu);
 
   wire rv16_rs1_x0 = (rv16_rs1 == 5'b00000);
   wire rv16_rs2_x0 = (rv16_rs2 == 5'b00000);
   wire rv16_rd_x0  = (rv16_rd  == 5'b00000);
   wire rv16_rd_x2  = (rv16_rd  == 5'b00010);
 
-  wire rv32_rs1_x31 = (rv32_rs1 == 5'b11111);
-  wire rv32_rs2_x31 = (rv32_rs2 == 5'b11111);
-  wire rv32_rd_x31  = (rv32_rd  == 5'b11111);
+  wire rv32_rs1_x31 = (rv32_rs1 == 5'b11111) & (~dec_fpu_rs1fpu);
+  wire rv32_rs2_x31 = (rv32_rs2 == 5'b11111) & (~dec_fpu_rs2fpu);
+  wire rv32_rd_x31  = (rv32_rd  == 5'b11111) & (~dec_fpu_rdfpu);
 
   wire rv32_load     = opcode_6_5_00 & opcode_4_2_000 & opcode_1_0_11; 
   wire rv32_store    = opcode_6_5_01 & opcode_4_2_000 & opcode_1_0_11; 
@@ -328,27 +336,100 @@ module e203_exu_decode(
   `endif//}
 
   //============================================================================
-  wire rv32_fadds = rv32_op_fp & rv32_func7_0000000;
-  wire rv32_fsubs = rv32_op_fp & rv32_func7_0000100;
-  wire rv32_fmuls = rv32_op_fp & rv32_func7_0001000;
-  wire rv32_fdivs = rv32_op_fp & rv32_func7_0001100;
-  wire rv32_fsqrts = rv32_op_fp & (rv32_instr[31:20] == 12'b0001_1000_0000);
-  wire rv32_fsgnjs = rv32_op_fp & rv32_func7_0010000 & rv32_func3_000;
+  // FPU Instructions info 
+  wire rv32_fadds   = rv32_op_fp & rv32_func7_0000000;
+  wire rv32_fsubs   = rv32_op_fp & rv32_func7_0000100;
+  wire rv32_fmuls   = rv32_op_fp & rv32_func7_0001000;
+  wire rv32_fdivs   = rv32_op_fp & rv32_func7_0001100;
+  wire rv32_fsqrts  = rv32_op_fp & (rv32_instr[31:20] == 12'b0001_1000_0000);
+  wire rv32_fsgnjs  = rv32_op_fp & rv32_func7_0010000 & rv32_func3_000;
   wire rv32_fsgnjns = rv32_op_fp & rv32_func7_0010000 & rv32_func3_001;
   wire rv32_fsgnjxs = rv32_op_fp & rv32_func7_0010000 & rv32_func3_010;
-  wire rv32_fmins = rv32_op_fp & rv32_func7_0010100 & rv32_func3_000;
-  wire rv32_fmaxs = rv32_op_fp & rv32_func7_0010100 & rv32_func3_001;
-  wire rv32_fcvtws = rv32_op_fp & (rv32_instr[31:20] == 12'b1100_0000_0000);
+  wire rv32_fmins   = rv32_op_fp & rv32_func7_0010100 & rv32_func3_000;
+  wire rv32_fmaxs   = rv32_op_fp & rv32_func7_0010100 & rv32_func3_001;
+  wire rv32_fcvtws  = rv32_op_fp & (rv32_instr[31:20] == 12'b1100_0000_0000);
   wire rv32_fcvtwus = rv32_op_fp & (rv32_instr[31:20] == 12'b1100_0000_0001);
-  wire rv32_fmvxw = rv32_op_fp & (rv32_instr[31:20] == 12'b1110_0000_0000);
-  wire rv32_feqs = rv32_op_fp & rv32_func7_1010000 & rv32_func3_010;
-  wire rv32_flts = rv32_op_fp & rv32_func7_1010000 & rv32_func3_001;
-  wire rv32_fles = rv32_op_fp & rv32_func7_1010000 & rv32_func3_000;
+  wire rv32_fmvxw   = rv32_op_fp & (rv32_instr[31:20] == 12'b1110_0000_0000);
+  wire rv32_feqs    = rv32_op_fp & rv32_func7_1010000 & rv32_func3_010;
+  wire rv32_flts    = rv32_op_fp & rv32_func7_1010000 & rv32_func3_001;
+  wire rv32_fles    = rv32_op_fp & rv32_func7_1010000 & rv32_func3_000;
   wire rv32_fclasss = rv32_op_fp & (rv32_instr[31:20] == 12'b1110_0000_0000) & rv32_func3_001;
-  wire rv32_fcvtsw = rv32_op_fp & (rv32_instr[31:20] == 12'b1101_0000_0000);
+  wire rv32_fcvtsw  = rv32_op_fp & (rv32_instr[31:20] == 12'b1101_0000_0000);
   wire rv32_fcvtswu = rv32_op_fp & (rv32_instr[31:20] == 12'b1101_0000_0001);
-  wire rv32_fmvwx = rv32_op_fp & (rv32_instr[31:20] == 12'b1111_0000_0000) & rv32_func3_000;
+  wire rv32_fmvwx   = rv32_op_fp & (rv32_instr[31:20] == 12'b1111_0000_0000) & rv32_func3_000;
+  wire rv32_fmadds = opcode_1_0_11 & opcode_4_2_000 & opcode_6_5_10 & (rv32_instr[26:25] == 2'b00);
+  wire rv32_fmsubs = opcode_1_0_11 & opcode_4_2_001 & opcode_6_5_10 & (rv32_instr[26:25] == 2'b00);
+  wire rv32_fnmsubs = opcode_1_0_11 & opcode_4_2_010 & opcode_6_5_10 & (rv32_instr[26:25] == 2'b00);
+  wire rv32_fnmadds = opcode_1_0_11 & opcode_4_2_011 & opcode_6_5_10 & (rv32_instr[26:25] == 2'b00);
+  wire rv32_frm = rv32_instr[11:7];
+  wire rv32_fr4 = rv32_fmadds | rv32_fmsubs |rv32_fnmadds|rv32_fnmsubs;  
+  wire rv32_fpu = rv32_op_fp | rv32_load_fp | rv32_store_fp | rv32_fr4;
+  assign dec_fpu = rv32_fpu;
+  assign dec_fpu_rs1fpu = rv32_fr4 | rv32_fadds  
+                      | rv32_fsubs  
+                      | rv32_fmuls  
+                      | rv32_fdivs  
+                      | rv32_fsqrts 
+                      | rv32_fsgnjs 
+                      | rv32_fsgnjns
+                      | rv32_fsgnjxs
+                      | rv32_fmins  
+                      | rv32_fmaxs  
+                      | rv32_fcvtws 
+                      | rv32_fcvtwus
+                      | rv32_feqs   
+                      | rv32_flts   
+                      | rv32_fles   
+                      | rv32_fclasss;
+  assign dec_fpu_rs2fpu = rv32_fr4 | rv32_store_fp
+                      | rv32_fadds
+                      | rv32_fsubs
+                      | rv32_fmuls
+                      | rv32_fdivs
+                      | rv32_fsgnjs 
+                      | rv32_fsgnjns
+                      | rv32_fsgnjxs
+                      | rv32_fmins  
+                      | rv32_fmaxs  
+                      | rv32_feqs
+                      | rv32_flts
+                      | rv32_fles ;
+  assign dec_fpu_rdfpu = rv32_load_fp | rv32_fr4
+                    | rv32_fadds  
+                    | rv32_fsubs  
+                    | rv32_fmuls  
+                    | rv32_fdivs  
+                    | rv32_fsqrts 
+                    | rv32_fsgnjs 
+                    | rv32_fsgnjns
+                    | rv32_fsgnjxs
+                    | rv32_fmins  
+                    | rv32_fmaxs  
+                    | rv32_fmvxw
+                    | rv32_fcvtsw 
+                    | rv32_fcvtswu
+                    | rv32_fmvwx  ;
+  wire fmac_op = rv32_fadds | rv32_fsubs | rv32_fmuls |rv32_fdivs;
 
+  wire [`E203_DECINFO_FMAC_WIDTH-1:0] fmac_info_bus;
+  assign fmac_info_bus[`E203_DECINFO_GRP]=`E203_DECINFO_GRP_FPU;
+  assign fmac_info_bus[`E203_DECINFO_RV32]=rv32;
+  assign fmac_info_bus[`E203_DECINFO_FPU_GRP]=`E203_DECINFO_GRP_FPU_FMAC;
+  assign fmac_info_bus[`E203_DECINFO_FPU_RM]=rv32_frm;
+  assign fmac_info_bus[`E203_DECINFO_FPU_USERM]=0;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FMADD]=rv32_fmadds;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FMSUB]=rv32_fmsubs;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FNMSUB]=rv32_fnmsubs;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FNMADD]=rv32_fnmadds;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FADD]=rv32_fadds;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FSUB]=rv32_fsubs;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FMUL]=rv32_fmuls;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FMIN]=rv32_fmins;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FMAX]=rv32_fmaxs;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FEQ]=rv32_feqs;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FLT]=rv32_flts;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FLE]=rv32_fles;
+  assign fmac_info_bus[`E203_DECINFO_FMAC_FDIV]=rv32_fdivs;
 
   // ===========================================================================
   // Branch Instructions
@@ -461,6 +542,7 @@ module e203_exu_decode(
               | rv32_wfi // We just put WFI into ALU and do nothing in ALU
               | ecall_ebreak)
               ;
+  
   wire need_imm;
   wire [`E203_DECINFO_ALU_WIDTH-1:0] alu_info_bus;
   assign alu_info_bus[`E203_DECINFO_GRP    ]    = `E203_DECINFO_GRP_ALU;
@@ -593,17 +675,17 @@ module e203_exu_decode(
 
   `endif//}
 
-  wire   amoldst_op = rv32_amo | rv32_load | rv32_store | rv16_lw | rv16_sw | (rv16_lwsp & (~rv16_lwsp_ilgl)) | rv16_swsp;
+  wire   amoldst_op = rv32_amo | rv32_load | rv32_store | rv32_load_fp | rv32_store_fp | rv16_lw | rv16_sw | (rv16_lwsp & (~rv16_lwsp_ilgl)) | rv16_swsp;
     // The RV16 always is word
-  wire [1:0] lsu_info_size  = rv32 ? rv32_func3[1:0] : 2'b10;
+  wire [1:0] lsu_info_size  = rv32 ? (rv32_fpu ? 2'b10 : rv32_func3[1:0]): 2'b10;
     // The RV16 always is signed
   wire       lsu_info_usign = rv32? rv32_func3[2] : 1'b0;
 
   wire [`E203_DECINFO_AGU_WIDTH-1:0] agu_info_bus;
   assign agu_info_bus[`E203_DECINFO_GRP    ] = `E203_DECINFO_GRP_AGU;
   assign agu_info_bus[`E203_DECINFO_RV32   ] = rv32;
-  assign agu_info_bus[`E203_DECINFO_AGU_LOAD   ] = rv32_load  | rv32_lr_w | rv16_lw | rv16_lwsp;
-  assign agu_info_bus[`E203_DECINFO_AGU_STORE  ] = rv32_store | rv32_sc_w | rv16_sw | rv16_swsp;
+  assign agu_info_bus[`E203_DECINFO_AGU_LOAD   ] = rv32_load  | rv32_lr_w | rv16_lw | rv16_lwsp | rv32_load_fp;
+  assign agu_info_bus[`E203_DECINFO_AGU_STORE  ] = rv32_store | rv32_sc_w | rv16_sw | rv16_swsp | rv32_store_fp;
   assign agu_info_bus[`E203_DECINFO_AGU_SIZE   ] = lsu_info_size;
   assign agu_info_bus[`E203_DECINFO_AGU_USIGN  ] = lsu_info_usign;
   assign agu_info_bus[`E203_DECINFO_AGU_EXCL   ] = rv32_lr_w | rv32_sc_w;
@@ -672,6 +754,7 @@ module e203_exu_decode(
                       (~rv32_branch) & (~rv32_store)
                     & (~rv32_fence_fencei)
                     & (~rv32_ecall_ebreak_ret_wfi) 
+                    & (~rv32_store_fp)
                     )
                    );
 
@@ -715,8 +798,23 @@ module e203_exu_decode(
                | (rv32_store)
                | (rv32_op)
                | (rv32_amo & (~rv32_lr_w))
+               | (rv32_fadds)
+               | (rv32_fsubs)
+               | (rv32_fmuls)
+               | (rv32_fdivs)
+               | (rv32_fsgnjs)
+               | (rv32_fsgnjns)
+               | (rv32_fsgnjxs)
+               | (rv32_fmins)
+               | (rv32_fmaxs)
+               | (rv32_feqs)
+               | (rv32_fles)
+               | (rv32_flts)
+               | (rv32_fr4)
+               | (rv32_store_fp)
                  )
                  );
+  wire rv32_need_rs3 = rv32_fr4;
 
   wire [31:0]  rv32_i_imm = { 
                                {20{rv32_instr[31]}} 
@@ -754,7 +852,7 @@ module e203_exu_decode(
                    //    * rv32_op_imm
                    //    * rv32_jalr
                    //    * rv32_load
-  wire rv32_imm_sel_i = rv32_op_imm | rv32_jalr | rv32_load;
+  wire rv32_imm_sel_i = rv32_op_imm | rv32_jalr | rv32_load | rv32_load_fp;
   wire rv32_imm_sel_jalr = rv32_jalr;
   wire [31:0]  rv32_jalr_imm = rv32_i_imm;
 
@@ -776,7 +874,7 @@ module e203_exu_decode(
                    
                    // It will select s-type immediate when
                    //    * rv32_store
-  wire rv32_imm_sel_s = rv32_store;
+  wire rv32_imm_sel_s = rv32_store | rv32_store_fp;
 
 
 
@@ -1011,7 +1109,8 @@ module e203_exu_decode(
             | ({`E203_DECINFO_WIDTH{amoldst_op}} & {{`E203_DECINFO_WIDTH-`E203_DECINFO_AGU_WIDTH{1'b0}},agu_info_bus})
             | ({`E203_DECINFO_WIDTH{bjp_op}}     & {{`E203_DECINFO_WIDTH-`E203_DECINFO_BJP_WIDTH{1'b0}},bjp_info_bus})
             | ({`E203_DECINFO_WIDTH{csr_op}}     & {{`E203_DECINFO_WIDTH-`E203_DECINFO_CSR_WIDTH{1'b0}},csr_info_bus})
-            | ({`E203_DECINFO_WIDTH{muldiv_op}}  & {{`E203_DECINFO_WIDTH-`E203_DECINFO_CSR_WIDTH{1'b0}},muldiv_info_bus})
+            | ({`E203_DECINFO_WIDTH{muldiv_op}}  & {{`E203_DECINFO_WIDTH-`E203_DECINFO_MULDIV_WIDTH{1'b0}},muldiv_info_bus})
+            | ({`E203_DECINFO_WIDTH{fmac_op}}  & {{`E203_DECINFO_WIDTH-`E203_DECINFO_FMAC_WIDTH{1'b0}},fmac_info_bus})
            `ifdef E203_HAS_NICE//{
             | ({`E203_DECINFO_WIDTH{nice_op}}     & {{`E203_DECINFO_WIDTH-`E203_DECINFO_NICE_WIDTH{1'b0}},nice_info_bus})
            `endif//}
@@ -1024,6 +1123,7 @@ module e203_exu_decode(
             | bjp_op
             | csr_op
             | muldiv_op
+            | fmac_op
            `ifdef E203_HAS_NICE//{
             | nice_op
            `endif//}
@@ -1185,15 +1285,19 @@ module e203_exu_decode(
 
   assign dec_rs1idx = rv32 ? rv32_rs1[`E203_RFIDX_WIDTH-1:0] : rv16_rs1idx;
   assign dec_rs2idx = rv32 ? rv32_rs2[`E203_RFIDX_WIDTH-1:0] : rv16_rs2idx;
+  assign dec_rs3idx = rv32_rs3[`E203_RFIDX_WIDTH-1:0];
   assign dec_rdidx  = rv32 ? rv32_rd [`E203_RFIDX_WIDTH-1:0] : rv16_rdidx ;
 
 
   assign dec_rs1en = rv32 ? rv32_need_rs1 : (rv16_rs1en & (~(rv16_rs1idx == `E203_RFIDX_WIDTH'b0))); 
+
   assign dec_rs2en = rv32 ? rv32_need_rs2 : (rv16_rs2en & (~(rv16_rs2idx == `E203_RFIDX_WIDTH'b0)));
+
   assign dec_rdwen = rv32 ? rv32_need_rd  : (rv16_rden  & (~(rv16_rdidx  == `E203_RFIDX_WIDTH'b0)));
 
-  assign dec_rs1x0 = (dec_rs1idx == `E203_RFIDX_WIDTH'b0);
-  assign dec_rs2x0 = (dec_rs2idx == `E203_RFIDX_WIDTH'b0);
+  assign dec_rs3en = rv32_fr4;
+  assign dec_rs1x0 = (dec_rs1idx == `E203_RFIDX_WIDTH'b0) & (~dec_fpu_rs1fpu);
+  assign dec_rs2x0 = (dec_rs2idx == `E203_RFIDX_WIDTH'b0) & (~dec_fpu_rs2fpu);
                      
   wire rv_index_ilgl;
   `ifdef E203_RFREG_NUM_IS_4 //{ 

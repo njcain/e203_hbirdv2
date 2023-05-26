@@ -308,7 +308,6 @@
     `define E203_FLEN 32
 `endif
 
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -654,11 +653,11 @@
       `define E203_DECINFO_FMAC_FLE_LSB  (`E203_DECINFO_FMAC_FLT_MSB+1)
       `define E203_DECINFO_FMAC_FLE_MSB   (`E203_DECINFO_FMAC_FLE_LSB+1-1)    
   `define E203_DECINFO_FMAC_FLE  `E203_DECINFO_FMAC_FLE_MSB:`E203_DECINFO_FMAC_FLE_LSB
-      `define E203_DECINFO_FMAC_DOUBLE_LSB  (`E203_DECINFO_FMAC_FLE_MSB+1)
-      `define E203_DECINFO_FMAC_DOUBLE_MSB   (`E203_DECINFO_FMAC_DOUBLE_LSB+1-1)    
-  `define E203_DECINFO_FMAC_DOUBLE  `E203_DECINFO_FMAC_DOUBLE_MSB:`E203_DECINFO_FMAC_DOUBLE_LSB
+      `define E203_DECINFO_FMAC_FDIV_LSB  (`E203_DECINFO_FMAC_FLE_MSB+1)
+      `define E203_DECINFO_FMAC_FDIV_MSB   (`E203_DECINFO_FMAC_FDIV_LSB+1-1)    
+  `define E203_DECINFO_FMAC_FDIV  `E203_DECINFO_FMAC_FDIV_MSB:`E203_DECINFO_FMAC_FDIV_LSB
 
-`define E203_DECINFO_FMAC_WIDTH  (`E203_DECINFO_FMAC_DOUBLE_MSB+1)
+`define E203_DECINFO_FMAC_WIDTH  (`E203_DECINFO_FMAC_FDIV_MSB+1)
 
   // MULDIV group
       `define E203_DECINFO_MULDIV_MUL_LSB   `E203_DECINFO_SUBDECINFO_LSB

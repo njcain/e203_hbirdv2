@@ -86,6 +86,9 @@ module e203_exu(
   input  i_muldiv_b2b,               
   input  [`E203_RFIDX_WIDTH-1:0] i_rs1idx,   // The RS1 index
   input  [`E203_RFIDX_WIDTH-1:0] i_rs2idx,   // The RS2 index
+  input  [`E203_RFIDX_WIDTH-1:0] i_rs3idx,   // The RS3 index
+  input  i_fpu_rs1fpu,
+  input  i_fpu_rs2fpu,
 
 
 
@@ -197,26 +200,50 @@ module e203_exu(
   input  rst_n
   );
 
-
+  
+  wire dec_fpu_rdfpu;
   //////////////////////////////////////////////////////////////
   // Instantiate the Regfile
   wire [`E203_XLEN-1:0] rf_rs1;
   wire [`E203_XLEN-1:0] rf_rs2;
+  wire [`E203_XLEN-1:0] rf_rs3;
 
   wire rf_wbck_ena;
   wire [`E203_XLEN-1:0] rf_wbck_wdat;
   wire [`E203_RFIDX_WIDTH-1:0] rf_wbck_rdidx;
-
-
+  wire [`E203_XLEN-1:0] rf_rs1_x_tmp;
+  wire [`E203_XLEN-1:0] rf_rs2_x_tmp;
+  wire [`E203_XLEN-1:0] rf_rs1_f_tmp;
+  wire [`E203_XLEN-1:0] rf_rs2_f_tmp;
+  assign rf_rs1 = i_fpu_rs1fpu ? rf_rs1_f_tmp : rf_rs1_x_tmp;
+  assign rf_rs2 = i_fpu_rs2fpu ? rf_rs2_f_tmp : rf_rs2_x_tmp;
   e203_exu_regfile u_e203_exu_regfile(
     .read_src1_idx (i_rs1idx ),
     .read_src2_idx (i_rs2idx ),
-    .read_src1_dat (rf_rs1),
-    .read_src2_dat (rf_rs2),
+    .read_src3_idx (),
+    .read_src1_dat (rf_rs1_x_tmp),
+    .read_src2_dat (rf_rs2_x_tmp),
+    .read_src3_dat (),
     
     .x1_r          (rf2ifu_x1),
                     
-    .wbck_dest_wen (rf_wbck_ena),
+    .wbck_dest_wen (rf_wbck_ena & (~dec_fpu_rdfpu)),
+    .wbck_dest_idx (rf_wbck_rdidx),
+    .wbck_dest_dat (rf_wbck_wdat),
+                                 
+    .test_mode     (test_mode),
+    .clk           (clk          ),
+    .rst_n         (rst_n        ) 
+  );
+  e203_exu_fpu_regfile u_e203_exu_fpu_regfile(
+    .read_src1_idx (i_rs1idx ),
+    .read_src2_idx (i_rs2idx ),
+    .read_src3_idx (i_rs3idx ),
+    .read_src1_dat (rf_rs1_f_tmp),
+    .read_src2_dat (rf_rs2_f_tmp),
+    .read_src3_dat (rf_rs3),
+                    
+    .wbck_dest_wen (rf_wbck_ena & dec_fpu_rdfpu),
     .wbck_dest_idx (rf_wbck_rdidx),
     .wbck_dest_dat (rf_wbck_wdat),
                                  
@@ -227,9 +254,9 @@ module e203_exu(
 
   wire dec_rs1en;
   wire dec_rs2en;
+  wire dec_rs3en;
+  wire dec_fpu;
 
-
-  
   //////////////////////////////////////////////////////////////
   // Instantiate the Decode
   wire [`E203_DECINFO_WIDTH-1:0]  dec_info;
@@ -287,15 +314,21 @@ module e203_exu(
     .dec_rs2x0 (dec_rs2x0),
     .dec_rs1en (dec_rs1en),
     .dec_rs2en (dec_rs2en),
+    .dec_rs3en (dec_rs3en),
     .dec_rdwen (dec_rdwen),
     .dec_rs1idx(),
     .dec_rs2idx(),
+    .dec_rs3idx(),
     .dec_misalgn(dec_misalgn),
     .dec_buserr (dec_buserr ),
     .dec_ilegl  (dec_ilegl),
     .dec_rdidx (dec_rdidx),
     .dec_pc    (dec_pc),
-    .dec_imm   (dec_imm)
+    .dec_imm   (dec_imm),
+    .dec_fpu   (dec_fpu),
+    .dec_fpu_rs1fpu (),
+    .dec_fpu_rs2fpu (),
+    .dec_fpu_rdfpu (dec_fpu_rdfpu)
   );
 
   //////////////////////////////////////////////////////////////
@@ -370,6 +403,24 @@ module e203_exu(
     .disp_i_misalgn      (dec_misalgn    ),
     .disp_i_buserr       (dec_buserr     ),
     .disp_i_ilegl        (dec_ilegl      ),
+
+    // .disp_i_fpu          (dec_fpu),
+    // .disp_i_fpu_rs1en    (dec_rs1en),
+    // .disp_i_fpu_rs2en    (dec_rs2en),
+    // .disp_i_fpu_rs3en    (dec_rs3en),
+    // .disp_i_fpu_rdwen    (dec_rdwen),
+    // .disp_i_fpu_rs1idx   (i_rs1idx),
+    // .disp_i_fpu_rs2idx   (i_rs2idx),
+    // .disp_i_fpu_rs3idx   (i_rs3idx),
+    // .disp_i_fpu_rdidx    (dec_rdidx),
+    // .disp_i_immfpu       (dec_imm),
+    // .disp_i_fpu_rs1      (rf_rs1),
+    // .disp_i_fpu_rs2      (rf_rs2),
+    // .disp_i_fpu_rs3      (rf_rs3),  
+    // .disp_i_fpu_rs1fpu   (i_fpu_rs1fpu),
+    // .disp_i_fpu_rs2fpu   (i_fpu_rs2fpu),
+    // .disp_i_fpu_rs3fpu   (1'b1),
+    // .disp_i_fpu_rdfpu    (dec_fpu_rdfpu),  
 
     .disp_o_alu_valid    (disp_alu_valid   ),
     .disp_o_alu_ready    (disp_alu_ready   ),

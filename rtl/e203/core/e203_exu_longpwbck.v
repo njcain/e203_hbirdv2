@@ -48,7 +48,7 @@ module e203_exu_longpwbck(
   // The Long pipe instruction Wback interface to final wbck module
   output longp_wbck_o_valid, // Handshake valid
   input  longp_wbck_o_ready, // Handshake ready
-  output [`E203_FLEN-1:0] longp_wbck_o_wdat,
+  output [`E203_XLEN-1:0] longp_wbck_o_wdat,
   output [5-1:0] longp_wbck_o_flags,
   output [`E203_RFIDX_WIDTH -1:0] longp_wbck_o_rdidx,
   output longp_wbck_o_rdfpu,

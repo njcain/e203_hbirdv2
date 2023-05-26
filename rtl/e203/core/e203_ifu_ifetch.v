@@ -65,6 +65,10 @@ module e203_ifu_ifetch(
   output ifu_o_pc_vld,
   output [`E203_RFIDX_WIDTH-1:0] ifu_o_rs1idx,
   output [`E203_RFIDX_WIDTH-1:0] ifu_o_rs2idx,
+  output [`E203_RFIDX_WIDTH-1:0] ifu_o_rs3idx,
+  output ifu_o_fpu_rs1fpu,
+  output ifu_o_fpu_rs2fpu,
+
   output ifu_o_prdt_taken,               // The Bxx is predicted as taken
   output ifu_o_misalgn,                  // The fetch misalign 
   output ifu_o_buserr,                   // The fetch bus error
@@ -261,33 +265,40 @@ module e203_ifu_ifetch(
   sirv_gnrl_dfflr #(`E203_INSTR_SIZE/2) ifu_hi_ir_dfflr (ir_hi_ena, ifu_ir_nxt[31:16], ifu_ir_r[31:16], clk, rst_n);
   sirv_gnrl_dfflr #(`E203_INSTR_SIZE/2) ifu_lo_ir_dfflr (ir_lo_ena, ifu_ir_nxt[15: 0], ifu_ir_r[15: 0], clk, rst_n);
 
-  wire minidec_rs1en;
-  wire minidec_rs2en;
   wire [`E203_RFIDX_WIDTH-1:0] minidec_rs1idx;
   wire [`E203_RFIDX_WIDTH-1:0] minidec_rs2idx;
+  wire [`E203_RFIDX_WIDTH-1:0] minidec_rs3idx;
 
-  `ifndef E203_HAS_FPU//}
-  wire minidec_fpu        = 1'b0;
-  wire minidec_fpu_rs1en  = 1'b0;
-  wire minidec_fpu_rs2en  = 1'b0;
-  wire minidec_fpu_rs3en  = 1'b0;
-  wire minidec_fpu_rs1fpu = 1'b0;
-  wire minidec_fpu_rs2fpu = 1'b0;
-  wire minidec_fpu_rs3fpu = 1'b0;
-  wire [`E203_RFIDX_WIDTH-1:0] minidec_fpu_rs1idx = `E203_RFIDX_WIDTH'b0;
-  wire [`E203_RFIDX_WIDTH-1:0] minidec_fpu_rs2idx = `E203_RFIDX_WIDTH'b0;
-  `endif//}
+  wire minidec_fpu ;
+  wire minidec_rs1en  ;
+  wire minidec_rs2en  ;
+  wire minidec_rs3en  ;
+  wire minidec_fpu_rs1fpu ;
+  wire minidec_fpu_rs2fpu ;
 
   wire [`E203_RFIDX_WIDTH-1:0] ir_rs1idx_r;
   wire [`E203_RFIDX_WIDTH-1:0] ir_rs2idx_r;
+  wire [`E203_RFIDX_WIDTH-1:0] ir_rs3idx_r;
+  wire ir_fpu_rs1fpu_r;
+  wire ir_fpu_rs2fpu_r;
   wire bpu2rf_rs1_ena;
   //FPU: if it is FPU instruction. we still need to put it into the IR register, but we need to mask off the non-integer regfile index to save power
-  wire ir_rs1idx_ena = (minidec_fpu & ir_valid_set & minidec_fpu_rs1en & (~minidec_fpu_rs1fpu)) | ((~minidec_fpu) & ir_valid_set & minidec_rs1en) | bpu2rf_rs1_ena;
-  wire ir_rs2idx_ena = (minidec_fpu & ir_valid_set & minidec_fpu_rs2en & (~minidec_fpu_rs2fpu)) | ((~minidec_fpu) & ir_valid_set & minidec_rs2en);
-  wire [`E203_RFIDX_WIDTH-1:0] ir_rs1idx_nxt = minidec_fpu ? minidec_fpu_rs1idx : minidec_rs1idx;
-  wire [`E203_RFIDX_WIDTH-1:0] ir_rs2idx_nxt = minidec_fpu ? minidec_fpu_rs2idx : minidec_rs2idx;
+  wire ir_rs1idx_ena = (minidec_fpu & ir_valid_set & minidec_rs1en) | ((~minidec_fpu) & ir_valid_set & minidec_rs1en) | bpu2rf_rs1_ena;
+  wire ir_rs2idx_ena = (minidec_fpu & ir_valid_set & minidec_rs2en) | ((~minidec_fpu) & ir_valid_set & minidec_rs2en);
+  wire ir_rs3idx_ena = (minidec_fpu & ir_valid_set & minidec_rs3en);
+  
+  wire [`E203_RFIDX_WIDTH-1:0] ir_rs1idx_nxt = minidec_rs1idx;
+  wire [`E203_RFIDX_WIDTH-1:0] ir_rs2idx_nxt = minidec_rs2idx;
+  wire [`E203_RFIDX_WIDTH-1:0] ir_rs3idx_nxt = minidec_rs3idx;
+  wire ir_fpu_rs1fpu_nxt = minidec_fpu_rs1fpu;
+  wire ir_fpu_rs2fpu_nxt = minidec_fpu_rs2fpu;
+
+  // 此处是在更新rs index寄存器的值, 根据是否valid来继续是否更新. 需要在这里添加一个寄存器,来输出rs index是否是float register file
   sirv_gnrl_dfflr #(`E203_RFIDX_WIDTH) ir_rs1idx_dfflr (ir_rs1idx_ena, ir_rs1idx_nxt, ir_rs1idx_r, clk, rst_n);
   sirv_gnrl_dfflr #(`E203_RFIDX_WIDTH) ir_rs2idx_dfflr (ir_rs2idx_ena, ir_rs2idx_nxt, ir_rs2idx_r, clk, rst_n);
+  sirv_gnrl_dfflr #(`E203_RFIDX_WIDTH) ir_rs3idx_dfflr (ir_rs3idx_ena, ir_rs3idx_nxt, ir_rs3idx_r, clk, rst_n);
+  sirv_gnrl_dfflr #(1) ir_fpu_rs1fpu_dfflr (ir_rs1idx_ena, ir_fpu_rs1fpu_nxt, ir_fpu_rs1fpu_r, clk, rst_n);
+  sirv_gnrl_dfflr #(1) ir_fpu_rs2fpu_dfflr (ir_rs2idx_ena, ir_fpu_rs2fpu_nxt, ir_fpu_rs2fpu_r, clk, rst_n);
 
   wire [`E203_PC_SIZE-1:0] pc_r;
   wire [`E203_PC_SIZE-1:0] ifu_pc_nxt = pc_r;
@@ -302,6 +313,9 @@ module e203_ifu_ifetch(
   assign ifu_o_buserr  = ifu_err_r;
   assign ifu_o_rs1idx = ir_rs1idx_r;
   assign ifu_o_rs2idx = ir_rs2idx_r;
+  assign ifu_o_rs3idx = ir_rs3idx_r;
+  assign ifu_o_fpu_rs1fpu = ir_fpu_rs1fpu_r;
+  assign ifu_o_fpu_rs2fpu = ir_fpu_rs2fpu_r;
   assign ifu_o_prdt_taken = ifu_prdt_taken_r;
   assign ifu_o_muldiv_b2b = ifu_muldiv_b2b_r;
 
@@ -348,7 +362,7 @@ module e203_ifu_ifetch(
         | ( minidec_remu & dec2ifu_divu)
       )
       // The last rs1 and rs2 indexes are same as this instruction
-      & (ir_rs1idx_r == ir_rs1idx_nxt)
+      & (~minidec_fpu) & (ir_rs1idx_r == ir_rs1idx_nxt)
       & (ir_rs2idx_r == ir_rs2idx_nxt)
       // The last rs1 and rs2 indexes are not same as last RD index
       & (~(ir_rs1idx_r == ir_rdidx))
@@ -370,8 +384,14 @@ module e203_ifu_ifetch(
 
       .dec_rs1en   (minidec_rs1en      ),
       .dec_rs2en   (minidec_rs2en      ),
+      .dec_rs3en   (minidec_rs3en      ),
       .dec_rs1idx  (minidec_rs1idx     ),
       .dec_rs2idx  (minidec_rs2idx     ),
+      .dec_rs3idx  (minidec_rs3idx     ),
+
+      .dec_fpu     (minidec_fpu),
+      .dec_fpu_rs1fpu (minidec_fpu_rs1fpu),
+      .dec_fpu_rs2fpu (minidec_fpu_rs2fpu),
 
       .dec_rv32    (minidec_rv32       ),
       .dec_bjp     (minidec_bjp        ),

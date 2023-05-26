@@ -55,6 +55,36 @@ module e203_exu_disp(
   input  disp_i_buserr ,
   input  disp_i_ilegl  ,
 
+  ////////////////////////////////////////////////////////////// 
+
+  // input disp_i_fpu,
+  // input disp_i_fpu_rs1en ,
+  // input disp_i_fpu_rs2en ,
+  // input disp_i_fpu_rs3en ,
+  // input disp_i_fpu_rdwen ,
+  // input [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs1idx,
+  // input [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs2idx,
+  // input [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs3idx,
+  // input [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rdidx ,
+  // input disp_i_fpu_rs1fpu,
+  // input disp_i_fpu_rs2fpu,
+  // input disp_i_fpu_rs3fpu,
+  // input disp_i_fpu_rdfpu ,
+
+
+  // Dispatch to FPU
+  // output disp_o_fpu_valid,
+  // input disp_o_fpu_ready,
+  // input disp_o_fpu_longpipe,
+  // output disp_o_fpu_rs1fpu,
+  // output disp_o_fpu_rs2fpu,
+  // output disp_o_fpu_rs3fpu,
+  // output disp_o_fpu_rdwen,
+  // output [`E203_RFIDX_WIDTH-1:0] disp_o_fpu_rdidx,
+  // output [`E203_DECINFO_WIDTH-1:0]  disp_o_fpu_info, 
+  // output [`E203_XLEN-1:0] disp_o_fpu_imm,
+  // output [`E203_PC_SIZE-1:0] disp_o_fpu_pc,
+  // output [`E203_ITAG_WIDTH-1:0] disp_o_fpu_itag,
 
   //////////////////////////////////////////////////////////////
   // Dispatch to ALU
@@ -107,7 +137,20 @@ module e203_exu_disp(
   input  clk,
   input  rst_n
   );
-
+  
+  wire disp_i_fpu       = 1'b0;
+  wire disp_i_fpu_rs1en = 1'b0;
+  wire disp_i_fpu_rs2en = 1'b0;
+  wire disp_i_fpu_rs3en = 1'b0;
+  wire disp_i_fpu_rdwen = 1'b0;
+  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs1idx = `E203_RFIDX_WIDTH'b0;
+  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs2idx = `E203_RFIDX_WIDTH'b0;
+  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs3idx = `E203_RFIDX_WIDTH'b0;
+  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rdidx  = `E203_RFIDX_WIDTH'b0;
+  wire disp_i_fpu_rs1fpu = 1'b0;
+  wire disp_i_fpu_rs2fpu = 1'b0;
+  wire disp_i_fpu_rs3fpu = 1'b0;
+  wire disp_i_fpu_rdfpu  = 1'b0;
 
   wire [`E203_DECINFO_GRP_WIDTH-1:0] disp_i_info_grp  = disp_i_info [`E203_DECINFO_GRP];
 
@@ -251,23 +294,6 @@ module e203_exu_disp(
   assign disp_o_alu_buserr = disp_i_buserr ;
   assign disp_o_alu_ilegl  = disp_i_ilegl  ;
 
-
-
-  `ifndef E203_HAS_FPU//{
-  wire disp_i_fpu       = 1'b0;
-  wire disp_i_fpu_rs1en = 1'b0;
-  wire disp_i_fpu_rs2en = 1'b0;
-  wire disp_i_fpu_rs3en = 1'b0;
-  wire disp_i_fpu_rdwen = 1'b0;
-  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs1idx = `E203_RFIDX_WIDTH'b0;
-  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs2idx = `E203_RFIDX_WIDTH'b0;
-  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rs3idx = `E203_RFIDX_WIDTH'b0;
-  wire [`E203_RFIDX_WIDTH-1:0] disp_i_fpu_rdidx  = `E203_RFIDX_WIDTH'b0;
-  wire disp_i_fpu_rs1fpu = 1'b0;
-  wire disp_i_fpu_rs2fpu = 1'b0;
-  wire disp_i_fpu_rs3fpu = 1'b0;
-  wire disp_i_fpu_rdfpu  = 1'b0;
-  `endif//}
   assign disp_oitf_rs1fpu = disp_i_fpu ? (disp_i_fpu_rs1en & disp_i_fpu_rs1fpu) : 1'b0;
   assign disp_oitf_rs2fpu = disp_i_fpu ? (disp_i_fpu_rs2en & disp_i_fpu_rs2fpu) : 1'b0;
   assign disp_oitf_rs3fpu = disp_i_fpu ? (disp_i_fpu_rs3en & disp_i_fpu_rs3fpu) : 1'b0;

@@ -345,6 +345,9 @@ module e203_core(
   wire ifu_o_buserr; 
   wire [`E203_RFIDX_WIDTH-1:0] ifu_o_rs1idx;
   wire [`E203_RFIDX_WIDTH-1:0] ifu_o_rs2idx;
+  wire [`E203_RFIDX_WIDTH-1:0] ifu_o_rs3idx;
+  wire ifu_o_fpu_rs1fpu;
+  wire ifu_o_fpu_rs2fpu;
   wire ifu_o_prdt_taken;
   wire ifu_o_muldiv_b2b;
 
@@ -419,6 +422,10 @@ module e203_core(
     .ifu_o_buserr           (ifu_o_buserr        ), 
     .ifu_o_rs1idx           (ifu_o_rs1idx        ),
     .ifu_o_rs2idx           (ifu_o_rs2idx        ),
+    .ifu_o_rs3idx           (ifu_o_rs3idx        ),
+    .ifu_o_fpu_rs1fpu       (ifu_o_fpu_rs1fpu),
+    .ifu_o_fpu_rs2fpu       (ifu_o_fpu_rs2fpu),
+
     .ifu_o_prdt_taken       (ifu_o_prdt_taken    ),
     .ifu_o_muldiv_b2b       (ifu_o_muldiv_b2b    ),
 
@@ -546,6 +553,9 @@ module e203_core(
     .i_buserr               (ifu_o_buserr        ), 
     .i_rs1idx               (ifu_o_rs1idx        ),
     .i_rs2idx               (ifu_o_rs2idx        ),
+    .i_rs3idx               (ifu_o_rs3idx        ),
+    .i_fpu_rs1fpu           (ifu_o_fpu_rs1fpu),
+    .i_fpu_rs2fpu           (ifu_o_fpu_rs2fpu),
     .i_prdt_taken           (ifu_o_prdt_taken    ),
     .i_muldiv_b2b           (ifu_o_muldiv_b2b    ),
 

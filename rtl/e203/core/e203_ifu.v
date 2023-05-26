@@ -88,6 +88,9 @@ module e203_ifu(
   output ifu_o_buserr,                   // The fetch bus error
   output [`E203_RFIDX_WIDTH-1:0] ifu_o_rs1idx,
   output [`E203_RFIDX_WIDTH-1:0] ifu_o_rs2idx,
+  output [`E203_RFIDX_WIDTH-1:0] ifu_o_rs3idx,
+  output ifu_o_fpu_rs1fpu,
+  output ifu_o_fpu_rs2fpu,
   output ifu_o_prdt_taken,               // The Bxx is predicted as taken
   output ifu_o_muldiv_b2b,               
   output ifu_o_valid, // Handshake signals with EXU stage
@@ -164,6 +167,9 @@ module e203_ifu(
     .ifu_o_muldiv_b2b(ifu_o_muldiv_b2b),
     .ifu_o_valid   (ifu_o_valid  ),
     .ifu_o_ready   (ifu_o_ready  ),
+    .ifu_o_rs3idx  (ifu_o_rs3idx),
+    .ifu_o_fpu_rs1fpu(ifu_o_fpu_rs1fpu),
+    .ifu_o_fpu_rs2fpu(ifu_o_fpu_rs2fpu),
     .pipe_flush_ack     (pipe_flush_ack    ), 
     .pipe_flush_req     (pipe_flush_req    ),
     .pipe_flush_add_op1 (pipe_flush_add_op1),     

@@ -14,8 +14,8 @@
  limitations under the License.                                          
  */                                                                      
                                                                          
-                                                                         
-                                                                         
+                                                                    
+// `define E203_CFG_HAS_FPU                                                                       
 `define FPGA_SOURCE
 `define E203_CFG_DEBUG_HAS_JTAG
 `define E203_CFG_IRQ_NEED_SYNC

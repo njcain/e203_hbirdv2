@@ -256,15 +256,15 @@ module e203_exu_decode(
   wire rv16_jalr_mv_add  = opcode_1_0_10 & rv16_func3_100;//--
   wire rv16_swsp         = opcode_1_0_10 & rv16_func3_110;//
 
+  wire rv16_flw          = opcode_1_0_00 & rv16_func3_011;
+  wire rv16_fsw          = opcode_1_0_00 & rv16_func3_111;
+  wire rv16_flwsp        = opcode_1_0_10 & rv16_func3_011;
+  wire rv16_fswsp        = opcode_1_0_10 & rv16_func3_111;
   `ifndef E203_HAS_FPU//{
-  wire rv16_flw          = 1'b0;
   wire rv16_fld          = 1'b0;
-  wire rv16_fsw          = 1'b0;
   wire rv16_fsd          = 1'b0;
   wire rv16_fldsp        = 1'b0;
-  wire rv16_flwsp        = 1'b0;
   wire rv16_fsdsp        = 1'b0;
-  wire rv16_fswsp        = 1'b0;
   `endif//}
 
   wire rv16_lwsp_ilgl    = rv16_lwsp & rv16_rd_x0;//(RES, rd=0)
@@ -394,7 +394,7 @@ module e203_exu_decode(
                       | rv32_fmaxs  
                       | rv32_feqs
                       | rv32_flts
-                      | rv32_fles ;
+                      | rv32_fles|rv16_fsw|rv16_fswsp;
   assign dec_fpu_rdfpu = rv32_load_fp | rv32_fr4
                     | rv32_fadds  
                     | rv32_fsubs  
@@ -408,7 +408,7 @@ module e203_exu_decode(
                     | rv32_fmaxs
                     | rv32_fcvtsw 
                     | rv32_fcvtswu
-                    | rv32_fmvwx  ;
+                    | rv32_fmvwx  |rv16_flw|rv16_flwsp;
   wire fmac_op = rv32_fadds | rv32_fsubs | rv32_fmuls |rv32_fdivs;
   wire fmis_op = rv32_fsgnjs | rv32_fsgnjns | rv32_fsgnjxs |rv32_fmvwx|rv32_fmvxw;
 
@@ -699,7 +699,7 @@ module e203_exu_decode(
 
   `endif//}
 
-  wire   amoldst_op = rv32_amo | rv32_load | rv32_store | rv32_load_fp | rv32_store_fp | rv16_lw | rv16_sw | (rv16_lwsp & (~rv16_lwsp_ilgl)) | rv16_swsp;
+  wire   amoldst_op = rv32_amo | rv32_load | rv32_store | rv32_load_fp | rv32_store_fp | rv16_lw | rv16_sw | rv16_flw | rv16_fsw|rv16_flwsp | rv16_fswsp | (rv16_lwsp & (~rv16_lwsp_ilgl)) | rv16_swsp;
     // The RV16 always is word
   wire [1:0] lsu_info_size  = rv32 ? (rv32_fpu ? 2'b10 : rv32_func3[1:0]): 2'b10;
     // The RV16 always is signed
@@ -708,8 +708,8 @@ module e203_exu_decode(
   wire [`E203_DECINFO_AGU_WIDTH-1:0] agu_info_bus;
   assign agu_info_bus[`E203_DECINFO_GRP    ] = `E203_DECINFO_GRP_AGU;
   assign agu_info_bus[`E203_DECINFO_RV32   ] = rv32;
-  assign agu_info_bus[`E203_DECINFO_AGU_LOAD   ] = rv32_load  | rv32_lr_w | rv16_lw | rv16_lwsp | rv32_load_fp;
-  assign agu_info_bus[`E203_DECINFO_AGU_STORE  ] = rv32_store | rv32_sc_w | rv16_sw | rv16_swsp | rv32_store_fp;
+  assign agu_info_bus[`E203_DECINFO_AGU_LOAD   ] = rv32_load  | rv32_lr_w | rv16_lw | rv16_lwsp|rv16_flw | rv16_flwsp | rv32_load_fp;
+  assign agu_info_bus[`E203_DECINFO_AGU_STORE  ] = rv32_store | rv32_sc_w | rv16_sw | rv16_swsp |rv16_fsw | rv16_fswsp| rv32_store_fp;
   assign agu_info_bus[`E203_DECINFO_AGU_SIZE   ] = lsu_info_size;
   assign agu_info_bus[`E203_DECINFO_AGU_USIGN  ] = lsu_info_usign;
   assign agu_info_bus[`E203_DECINFO_AGU_EXCL   ] = rv32_lr_w | rv32_sc_w;
@@ -908,7 +908,7 @@ module e203_exu_decode(
   
                    // It will select CIS-type immediate when
                    //    * rv16_lwsp
-  wire rv16_imm_sel_cis = rv16_lwsp;
+  wire rv16_imm_sel_cis = rv16_lwsp|rv16_flwsp;
   wire [31:0]  rv16_cis_imm ={
                           24'b0
                         , rv16_instr[3:2]
@@ -965,7 +965,7 @@ module e203_exu_decode(
                    
                    // It will select CSS-type immediate when
                    //    * rv16_swsp
-  wire rv16_imm_sel_css = rv16_swsp;
+  wire rv16_imm_sel_css = rv16_swsp|rv16_fswsp;
   wire [31:0]  rv16_css_imm ={
                           24'b0
                         , rv16_instr[8:7]
@@ -993,7 +993,7 @@ module e203_exu_decode(
 
                    // It will select CL-type immediate when
                    //    * rv16_lw
-  wire rv16_imm_sel_cl = rv16_lw;
+  wire rv16_imm_sel_cl = rv16_lw|rv16_flw;
   wire [31:0]  rv16_cl_imm ={
                           25'b0
                         , rv16_instr[5]
@@ -1015,7 +1015,7 @@ module e203_exu_decode(
                          };
                    // It will select CS-type immediate when
                    //    * rv16_sw
-  wire rv16_imm_sel_cs = rv16_sw;
+  wire rv16_imm_sel_cs = rv16_sw|rv16_fsw;
   wire [31:0]  rv16_cs_imm ={
                           25'b0
                         , rv16_instr[5]

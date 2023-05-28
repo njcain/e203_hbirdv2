@@ -91,6 +91,13 @@ wire rv32_fdivs =   `EXU.u_e203_exu_decode.rv32_fdivs;
 //wire rv32_fcvtsw  = `EXU.u_e203_exu_decode.rv32_fcvtsw ;
 //wire rv32_fcvtswu = `EXU.u_e203_exu_decode.rv32_fcvtswu;
 //wire rv32_fmvwx   = `EXU.u_e203_exu_decode.rv32_fmvwx  ;
+wire alu_op = `EXU.u_e203_exu_decode.alu_op;
+wire amoldst_op = `EXU.u_e203_exu_decode.amoldst_op;
+wire bjp_op = `EXU.u_e203_exu_decode.bjp_op;
+wire csr_op = `EXU.u_e203_exu_decode.csr_op;
+wire muldiv_op = `EXU.u_e203_exu_decode.muldiv_op;
+wire fmac_op = `EXU.u_e203_exu_decode.fmac_op;
+wire fmis_op = `EXU.u_e203_exu_decode.fmis_op;
 
 wire rv_all0s1s_ilgl =`EXU.u_e203_exu_decode.rv_all0s1s_ilgl;
 wire rv_index_ilgl=`EXU.u_e203_exu_decode.rv_index_ilgl;
@@ -397,7 +404,7 @@ wire wbck_o_valid=`EXU.u_e203_exu_alu.wbck_o_valid;
 
     reg [7:0] itcm_mem [0:(`E203_ITCM_RAM_DP*8)-1];
     initial begin
-      $readmemh({"D:\\Desktop\\test\\rv32uf-p-fdiv.verilog"}, itcm_mem);
+      $readmemh({"D:\\Desktop\\test\\Hello_world.verilog"}, itcm_mem);
        //$readmemh({testcase, "D:\\Desktop\\test\\rv32uf-p-fadd.verilog"}, itcm_mem);
 
       for (i=0;i<(`E203_ITCM_RAM_DP);i=i+1) begin

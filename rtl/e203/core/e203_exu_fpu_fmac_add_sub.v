@@ -28,7 +28,6 @@ module e203_exu_fpu_fmac_add_sub(
 	reg[7:0] xe, ye, ze;  //阶码部分
 	
 	reg zsign; //z的符号位
-    assign fmac_o_wbck_err = 1'b0;
     reg       input_xy_stb=0;
 	
     parameter start=3'b000,zerock=3'b001,exequal=3'b010,addm=3'b011,infifl=3'b100,over =3'b110;

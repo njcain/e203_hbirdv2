@@ -339,6 +339,7 @@ module e203_exu(
   wire [`E203_ITAG_WIDTH-1:0] disp_alu_itag;
   wire [`E203_XLEN-1:0] disp_alu_rs1;
   wire [`E203_XLEN-1:0] disp_alu_rs2;
+  wire [`E203_XLEN-1:0] disp_alu_rs3;
   wire [`E203_XLEN-1:0] disp_alu_imm;
   wire [`E203_DECINFO_WIDTH-1:0]  disp_alu_info;  
   wire [`E203_PC_SIZE-1:0] disp_alu_pc;
@@ -391,13 +392,16 @@ module e203_exu(
     .disp_i_rs2x0        (dec_rs2x0       ),
     .disp_i_rs1en        (dec_rs1en       ),
     .disp_i_rs2en        (dec_rs2en       ),
+    .disp_i_rs3en        (dec_rs3en       ),
     .disp_i_rs1idx       (i_rs1idx      ),
     .disp_i_rs2idx       (i_rs2idx      ),
+    .disp_i_rs3idx       (i_rs3idx      ),
     .disp_i_rdwen        (dec_rdwen       ),
     .disp_i_rdidx        (dec_rdidx       ),
     .disp_i_info         (dec_info        ),
     .disp_i_rs1          (rf_rs1          ),
     .disp_i_rs2          (rf_rs2          ),
+    .disp_i_rs3          (rf_rs3          ),
     .disp_i_imm          (dec_imm        ),
     .disp_i_pc           (dec_pc         ),
     .disp_i_misalgn      (dec_misalgn    ),
@@ -428,6 +432,7 @@ module e203_exu(
     .disp_o_alu_itag     (disp_alu_itag    ),
     .disp_o_alu_rs1      (disp_alu_rs1     ),
     .disp_o_alu_rs2      (disp_alu_rs2     ),
+    .disp_o_alu_rs3      (disp_alu_rs3     ),
     .disp_o_alu_rdwen    (disp_alu_rdwen    ),
     .disp_o_alu_rdidx    (disp_alu_rdidx   ),
     .disp_o_alu_info     (disp_alu_info    ),
@@ -589,6 +594,7 @@ module e203_exu(
     .i_itag              (disp_alu_itag    ),
     .i_rs1               (disp_alu_rs1     ),
     .i_rs2               (disp_alu_rs2     ),
+    .i_rs3               (disp_alu_rs3     ),
 
   `ifdef E203_HAS_NICE//{
     .nice_xs_off         (nice_xs_off),

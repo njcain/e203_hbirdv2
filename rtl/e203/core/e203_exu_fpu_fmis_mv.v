@@ -1,4 +1,3 @@
-`include "e203_defines.v"
 module e203_exu_fpu_fmis_mv(
     input fmis_mv_i_valid, // Handshake valid
     output fmis_mv_i_ready, // Handshake ready

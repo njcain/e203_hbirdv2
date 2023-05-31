@@ -341,7 +341,7 @@ module e203_exu_decode(
   wire rv32_fsubs   = rv32_op_fp & rv32_func7_0000100;
   wire rv32_fmuls   = rv32_op_fp & rv32_func7_0001000;
   wire rv32_fdivs   = rv32_op_fp & rv32_func7_0001100;
-  wire rv32_fsqrts  = rv32_op_fp & (rv32_instr[31:20] == 12'b0001_1000_0000);
+  wire rv32_fsqrts  = rv32_op_fp & (rv32_instr[31:20] == 12'b0101_1000_0000);
   wire rv32_fsgnjs  = rv32_op_fp & rv32_func7_0010000 & rv32_func3_000;
   wire rv32_fsgnjns = rv32_op_fp & rv32_func7_0010000 & rv32_func3_001;
   wire rv32_fsgnjxs = rv32_op_fp & rv32_func7_0010000 & rv32_func3_010;
@@ -409,8 +409,12 @@ module e203_exu_decode(
                     | rv32_fcvtsw 
                     | rv32_fcvtswu
                     | rv32_fmvwx  |rv16_flw|rv16_flwsp;
-  wire fmac_op = rv32_fadds | rv32_fsubs | rv32_fmuls |rv32_fdivs;
-  wire fmis_op = rv32_fsgnjs | rv32_fsgnjns | rv32_fsgnjxs |rv32_fmvwx|rv32_fmvxw;
+  wire fmac_op = rv32_fadds | rv32_fsubs | rv32_fmuls |rv32_fdivs
+                | rv32_fmadds |rv32_fmsubs|rv32_fnmadds|rv32_fnmsubs
+                | rv32_fles |rv32_flts|rv32_feqs;
+  wire fmis_op = rv32_fsgnjs | rv32_fsgnjns | rv32_fsgnjxs |rv32_fmvwx|rv32_fmvxw
+                 | rv32_fclasss |rv32_fcvtsw |rv32_fcvtswu |rv32_fcvtws|rv32_fcvtwus
+                 |rv32_fsqrts;
 
   wire [`E203_DECINFO_FMAC_WIDTH-1:0] fmac_info_bus;
   assign fmac_info_bus[`E203_DECINFO_GRP]=`E203_DECINFO_GRP_FPU;
@@ -453,7 +457,7 @@ module e203_exu_decode(
   assign fmis_info_bus[`E203_DECINFO_FMIS_CVTWUD]=0;
   assign fmis_info_bus[`E203_DECINFO_FMIS_CVTDW]=0;
   assign fmis_info_bus[`E203_DECINFO_FMIS_CVTDWU]=0;
-  assign fmis_info_bus[`E203_DECINFO_FMIS_DOUBLE]=0;
+  assign fmis_info_bus[`E203_DECINFO_FMIS_FSQRT]=rv32_fsqrts;
   
   // ===========================================================================
   // Branch Instructions

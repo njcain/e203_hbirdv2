@@ -59,6 +59,7 @@ module e203_exu_alu(
   input  [`E203_ITAG_WIDTH-1:0] i_itag,
   input  [`E203_XLEN-1:0] i_rs1,
   input  [`E203_XLEN-1:0] i_rs2,
+  input  [`E203_XLEN-1:0] i_rs3,
   input  [`E203_XLEN-1:0] i_imm,
   input  [`E203_DECINFO_WIDTH-1:0]  i_info,  
   input  [`E203_PC_SIZE-1:0] i_pc,
@@ -615,6 +616,7 @@ module e203_exu_alu(
   // Instantiate the FMAC module
   wire [`E203_XLEN-1:0]           fmac_i_rs1  = {`E203_XLEN         {fmac_op}} & i_rs1;
   wire [`E203_XLEN-1:0]           fmac_i_rs2  = {`E203_XLEN         {fmac_op}} & i_rs2;
+  wire [`E203_XLEN-1:0]           fmac_i_rs3  = {`E203_XLEN         {fmac_op}} & i_rs3;
   wire [`E203_XLEN-1:0]           fmac_i_imm  = {`E203_XLEN         {fmac_op}} & i_imm;
   wire [`E203_DECINFO_WIDTH-1:0]  fmac_i_info = {`E203_DECINFO_WIDTH{fmac_op}} & i_info;  
   wire  [`E203_ITAG_WIDTH-1:0]    fmac_i_itag = {`E203_ITAG_WIDTH   {fmac_op}} & i_itag;  
@@ -628,6 +630,7 @@ module e203_exu_alu(
                   
       .fmac_i_rs1        (fmac_i_rs1      ),
       .fmac_i_rs2        (fmac_i_rs2      ),
+      .fmac_i_rs3        (fmac_i_rs3      ),
       .fmac_i_imm        (fmac_i_imm      ),
       .fmac_i_info       (fmac_i_info[`E203_DECINFO_FMAC_WIDTH-1:0]),
       .fmac_i_itag       (fmac_i_itag     ),

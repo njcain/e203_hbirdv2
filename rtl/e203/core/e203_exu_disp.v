@@ -42,10 +42,13 @@ module e203_exu_disp(
   input  disp_i_rs2x0,
   input  disp_i_rs1en,
   input  disp_i_rs2en,
+  input  disp_i_rs3en,
   input  [`E203_RFIDX_WIDTH-1:0] disp_i_rs1idx,
   input  [`E203_RFIDX_WIDTH-1:0] disp_i_rs2idx,
+  input  [`E203_RFIDX_WIDTH-1:0] disp_i_rs3idx,
   input  [`E203_XLEN-1:0] disp_i_rs1,
   input  [`E203_XLEN-1:0] disp_i_rs2,
+  input  [`E203_XLEN-1:0] disp_i_rs3,
   input  disp_i_rdwen,
   input  [`E203_RFIDX_WIDTH-1:0] disp_i_rdidx,
   input  [`E203_DECINFO_WIDTH-1:0]  disp_i_info,  
@@ -95,6 +98,7 @@ module e203_exu_disp(
 
   output [`E203_XLEN-1:0] disp_o_alu_rs1,
   output [`E203_XLEN-1:0] disp_o_alu_rs2,
+  output [`E203_XLEN-1:0] disp_o_alu_rs3,
   output disp_o_alu_rdwen,
   output [`E203_RFIDX_WIDTH-1:0] disp_o_alu_rdidx,
   output [`E203_DECINFO_WIDTH-1:0]  disp_o_alu_info,  
@@ -279,6 +283,7 @@ module e203_exu_disp(
   //assign disp_o_alu_info  = {`E203_DECINFO_WIDTH{disp_alu}} & disp_i_info;  
   assign disp_o_alu_rs1   = disp_i_rs1_msked;
   assign disp_o_alu_rs2   = disp_i_rs2_msked;
+  assign disp_o_alu_rs3   = disp_i_rs3;
   assign disp_o_alu_rdwen = disp_i_rdwen;
   assign disp_o_alu_rdidx = disp_i_rdidx;
   assign disp_o_alu_info  = disp_i_info;  
@@ -301,12 +306,12 @@ module e203_exu_disp(
 
   assign disp_oitf_rs1en  = disp_i_fpu ? disp_i_fpu_rs1en : disp_i_rs1en;
   assign disp_oitf_rs2en  = disp_i_fpu ? disp_i_fpu_rs2en : disp_i_rs2en;
-  assign disp_oitf_rs3en  = disp_i_fpu ? disp_i_fpu_rs3en : 1'b0;
+  assign disp_oitf_rs3en  = disp_i_fpu ? disp_i_fpu_rs3en : disp_i_rs3en;
   assign disp_oitf_rdwen  = disp_i_fpu ? disp_i_fpu_rdwen : disp_i_rdwen;
 
   assign disp_oitf_rs1idx = disp_i_fpu ? disp_i_fpu_rs1idx : disp_i_rs1idx;
   assign disp_oitf_rs2idx = disp_i_fpu ? disp_i_fpu_rs2idx : disp_i_rs2idx;
-  assign disp_oitf_rs3idx = disp_i_fpu ? disp_i_fpu_rs3idx : `E203_RFIDX_WIDTH'b0;
+  assign disp_oitf_rs3idx = disp_i_fpu ? disp_i_fpu_rs3idx : disp_i_rs3idx;
   assign disp_oitf_rdidx  = disp_i_fpu ? disp_i_fpu_rdidx  : disp_i_rdidx;
 
   assign disp_oitf_pc  = disp_i_pc;

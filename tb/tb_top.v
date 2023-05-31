@@ -33,6 +33,7 @@ module tb_top();
 //  wire [`E203_XLEN-1:0] x0 = `EXU.u_e203_exu_regfile.rf_r[0];
 //  wire [`E203_XLEN-1:0] x10 = `EXU.u_e203_exu_regfile.rf_r[10];
   wire [`E203_XLEN-1:0] x3 = `EXU.u_e203_exu_regfile.rf_r[3];
+   wire [`E203_XLEN-1:0] f0 = `EXU.u_e203_exu_fpu_regfile.rf_r[0];
   wire [`E203_XLEN-1:0] f1 = `EXU.u_e203_exu_fpu_regfile.rf_r[1];
   wire [`E203_XLEN-1:0] f2 = `EXU.u_e203_exu_fpu_regfile.rf_r[2];
   wire [`E203_XLEN-1:0] f3 = `EXU.u_e203_exu_fpu_regfile.rf_r[3];
@@ -47,6 +48,8 @@ module tb_top();
   wire [`E203_XLEN-1:0] f11 = `EXU.u_e203_exu_fpu_regfile.rf_r[11];
   wire [`E203_XLEN-1:0] f12 = `EXU.u_e203_exu_fpu_regfile.rf_r[12];
   wire [`E203_XLEN-1:0] f13 = `EXU.u_e203_exu_fpu_regfile.rf_r[13];
+    wire [`E203_XLEN-1:0] f14 = `EXU.u_e203_exu_fpu_regfile.rf_r[14];
+      wire [`E203_XLEN-1:0] f15 = `EXU.u_e203_exu_fpu_regfile.rf_r[15];
 //    wire [`E203_XLEN-1:0] x1_wen = `EXU.u_e203_exu_regfile.rf_wen[1];
 //  wire [`E203_XLEN-1:0] x2_wen = `EXU.u_e203_exu_regfile.rf_wen[2];
 //  wire [`E203_XLEN-1:0] x3_wen = `EXU.u_e203_exu_regfile.rf_wen[3];
@@ -58,7 +61,7 @@ module tb_top();
 //  wire [`E203_XLEN-1:0] x9_wen = `EXU.u_e203_exu_regfile.rf_wen[9];
 //  wire [`E203_XLEN-1:0] x0_wen = `EXU.u_e203_exu_regfile.rf_wen[0];
 //  wire [`E203_XLEN-1:0] x10_wen = `EXU.u_e203_exu_regfile.rf_wen[10];
-
+wire [`E203_XLEN-1:0] f0_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[0];
   wire [`E203_XLEN-1:0] f1_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[1];
   wire [`E203_XLEN-1:0] f2_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[2];
   wire [`E203_XLEN-1:0] f3_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[3];
@@ -73,11 +76,13 @@ module tb_top();
   wire [`E203_XLEN-1:0] f11_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[11];
   wire [`E203_XLEN-1:0] f12_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[12];
   wire [`E203_XLEN-1:0] f13_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[13];
-
+wire [`E203_XLEN-1:0] f14_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[14];
+wire [`E203_XLEN-1:0] f15_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[15];
 //wire rv32_load_fp = `EXU.u_e203_exu_decode.rv32_load_fp;
 //wire rv32_fr4 =      `EXU.u_e203_exu_decode.rv32_fr4;
 wire rv32_fadds =   `EXU.u_e203_exu_decode.rv32_fadds;
 wire rv32_fdivs =   `EXU.u_e203_exu_decode.rv32_fdivs;
+wire rv32_fsqrts =   `EXU.u_e203_exu_decode.rv32_fsqrts;
 //wire rv32_fsubs =    `EXU.u_e203_exu_decode.rv32_fsubs  ;
 //wire rv32_fmuls =   `EXU.u_e203_exu_decode.rv32_fmuls  ;
 //wire rv32_fdivs =  `EXU.u_e203_exu_decode.rv32_fdivs  ;
@@ -169,22 +174,39 @@ wire legl_ops=`EXU.u_e203_exu_decode.legl_ops;
           wire [31:0] instr = `CPU_TOP.u_e203_cpu.u_e203_core.u_e203_ifu.u_e203_ifu_ifetch.u_e203_ifu_minidec.instr;
           wire [31:0] fmac_i_rs1=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_i_rs1;
           wire [31:0] fmac_i_rs2=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_i_rs2;
+           wire [31:0] fmac_i_rs3=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_i_rs3;
           wire [31:0] fmis_i_rs1=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmis.fmis_i_rs1;
           wire [31:0] fmis_i_rs2=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmis.fmis_i_rs2;
+          wire [31:0] fmac_lt_o_wbck_wdat=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_lt_o_wbck_wdat;
           wire [31:0] fmac_o_wbck_wdat=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_o_wbck_wdat;
             wire [31:0] wbck_o_wdat=`EXU.u_e203_exu_alu.wbck_o_wdat;
           wire i_fadd = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fadd;
            wire i_fdiv = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fdiv;
+           wire i_fsub = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fsub;
+           wire i_fmul = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fmul;
+           wire i_fmadd = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fmadd;
+           wire i_feq = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_feq;
+           wire i_flt = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_flt;
+           wire i_fle = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fle;
+           
           wire fmac_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_o_valid;
           wire fmac_as_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_as_o_valid;
           wire fmac_div_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_div_o_valid;
           wire s_output_z = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.u_e203_exu_fpu_fmac_div.s_output_z;
 wire i_fsub = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fsub;
 wire i_fmul = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fmul;
+wire i_fmadd = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fmadd;
+wire fmac_mmnn_i_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_mmnn_i_valid;
+wire fmac_mmnn_i_ready = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_mmnn_i_ready;
+wire fmac_mmnn_o_valid = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_mmnn_o_valid;
+wire fmac_mmnn_o_ready = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_mmnn_o_ready;
+
+wire i_fnmadd = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.i_fnmadd;
+wire fmac_mmnn_o_wbck_wdat = `EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.fmac_mmnn_o_wbck_wdat;
 wire o_valid = `EXU.u_e203_exu_alu.o_valid;
 wire wbck_o_valid=`EXU.u_e203_exu_alu.wbck_o_valid;
           wire [3:0] state=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.u_e203_exu_fpu_fmac_div.state;
-          wire [2:0] fmac_op=`EXU.u_e203_exu_alu.fmac_op;
+           wire [3:0] state_fmmnn=`EXU.u_e203_exu_alu.u_e203_exu_fpu_fmac.u_e203_exu_fpu_fmac_madd_msub_nmadd_nmsub.state;
          wire [2:0] E203_DECINFO_GRP=`EXU.u_e203_exu_alu.i_info[`E203_DECINFO_GRP];
    wire [2:0] E203_DECINFO_FPU_GRP=`EXU.u_e203_exu_alu.i_info[`E203_DECINFO_FPU_GRP];
    wire ifu_excp_op=`EXU.u_e203_exu_alu.ifu_excp_op;
@@ -359,14 +381,14 @@ wire wbck_o_valid=`EXU.u_e203_exu_alu.wbck_o_valid;
   end
 
   initial begin
-    #40000000
+    #400000000
         $display("Time Out !!!");
      $finish;
   end
 
   always
   begin 
-     #8 clk <= ~clk;
+     #6 clk <= ~clk;
   end
 
   always

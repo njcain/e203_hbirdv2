@@ -228,6 +228,7 @@ module e203_exu(
     .x1_r          (rf2ifu_x1),
                     
     .wbck_dest_wen (rf_wbck_ena & (~dec_fpu_rdfpu)),
+    // .wbck_dest_wen (rf_wbck_ena & (~dec_fpu_rdfpu) & (~longp_wbck_o_rdfpu)),
     .wbck_dest_idx (rf_wbck_rdidx),
     .wbck_dest_dat (rf_wbck_wdat),
                                  
@@ -244,6 +245,7 @@ module e203_exu(
     .read_src3_dat (rf_rs3),
                     
     .wbck_dest_wen (rf_wbck_ena & dec_fpu_rdfpu),
+    // .wbck_dest_wen (rf_wbck_ena & (dec_fpu_rdfpu | longp_wbck_o_rdfpu)),
     .wbck_dest_idx (rf_wbck_rdidx),
     .wbck_dest_dat (rf_wbck_wdat),
                                  
@@ -417,14 +419,11 @@ module e203_exu(
     // .disp_i_fpu_rs2idx   (i_rs2idx),
     // .disp_i_fpu_rs3idx   (i_rs3idx),
     // .disp_i_fpu_rdidx    (dec_rdidx),
-    // .disp_i_immfpu       (dec_imm),
-    // .disp_i_fpu_rs1      (rf_rs1),
-    // .disp_i_fpu_rs2      (rf_rs2),
-    // .disp_i_fpu_rs3      (rf_rs3),  
     // .disp_i_fpu_rs1fpu   (i_fpu_rs1fpu),
     // .disp_i_fpu_rs2fpu   (i_fpu_rs2fpu),
     // .disp_i_fpu_rs3fpu   (1'b1),
     // .disp_i_fpu_rdfpu    (dec_fpu_rdfpu),  
+
 
     .disp_o_alu_valid    (disp_alu_valid   ),
     .disp_o_alu_ready    (disp_alu_ready   ),

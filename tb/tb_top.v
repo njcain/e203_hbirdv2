@@ -83,6 +83,7 @@ wire [`E203_XLEN-1:0] f15_wen = `EXU.u_e203_exu_fpu_regfile.rf_wen[15];
 wire rv32_fadds =   `EXU.u_e203_exu_decode.rv32_fadds;
 wire rv32_fdivs =   `EXU.u_e203_exu_decode.rv32_fdivs;
 wire rv32_fsqrts =   `EXU.u_e203_exu_decode.rv32_fsqrts;
+wire longp_wbck_o_rdfpu  = `EXU.longp_wbck_o_rdfpu;
 //wire rv32_fsubs =    `EXU.u_e203_exu_decode.rv32_fsubs  ;
 //wire rv32_fmuls =   `EXU.u_e203_exu_decode.rv32_fmuls  ;
 //wire rv32_fdivs =  `EXU.u_e203_exu_decode.rv32_fdivs  ;
@@ -427,7 +428,6 @@ wire wbck_o_valid=`EXU.u_e203_exu_alu.wbck_o_valid;
     reg [7:0] itcm_mem [0:(`E203_ITCM_RAM_DP*8)-1];
     initial begin
       $readmemh({"D:\\Desktop\\test\\Hello_world.verilog"}, itcm_mem);
-       //$readmemh({testcase, "D:\\Desktop\\test\\rv32uf-p-fadd.verilog"}, itcm_mem);
 
       for (i=0;i<(`E203_ITCM_RAM_DP);i=i+1) begin
           `ITCM.mem_r[i][00+7:00] = itcm_mem[i*8+0];

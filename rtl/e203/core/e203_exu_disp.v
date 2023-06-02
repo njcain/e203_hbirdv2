@@ -72,7 +72,7 @@ module e203_exu_disp(
   // input disp_i_fpu_rs1fpu,
   // input disp_i_fpu_rs2fpu,
   // input disp_i_fpu_rs3fpu,
-  // input disp_i_fpu_rdfpu ,
+  // input disp_i_fpu_rdfpu,
 
 
   // Dispatch to FPU

@@ -11,8 +11,8 @@ module e203_exu_fpu_fmac_lt(
 );
     assign fmac_lt_o_valid = fmac_lt_i_valid;
     assign fmac_lt_i_ready = fmac_lt_o_ready;
-    wire[31:0] a = fmac_i_rs2;
-    wire[31:0] b = fmac_i_rs1;
+    wire[31:0] a = fmac_i_rs1;
+    wire[31:0] b = fmac_i_rs2;
     wire s_a = a[31];
     wire s_b = b[31];
     wire [7:0] e_a = a[30:23];
@@ -50,7 +50,11 @@ module e203_exu_fpu_fmac_eq(
     assign fmac_eq_i_ready = fmac_eq_o_ready;
     wire[31:0] a = fmac_i_rs1;
     wire[31:0] b = fmac_i_rs2;
-    assign fmac_eq_o_wbck_wdat = 
+    wire [22:0] a_m = a[22:0];
+    wire  [7:0] a_e = a[30:23];
+    wire [22:0] b_m = b[22:0];
+    wire  [7:0] b_e = b[30:23];    
+    assign fmac_eq_o_wbck_wdat = (((a_e==8'b11111111)&(a_m!=23'b0)) | ((b_e==8'b11111111)&(b_m!=23'b0))) ? 0 :
     (a == 32'h80000000 && b == 32'h00000000) ? 1 :
     (a == 32'h00000000 && b == 32'h80000000) ? 1 :
     a == b ? 1 : 0;
